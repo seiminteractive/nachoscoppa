@@ -137,7 +137,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import djPortrait from "../assets/pressFoto.jpg";
+import djPortrait from "../assets/pressFoto.JPG";
 import logoCriterio from "../assets/criterioLabelLogo.svg";
 import logoDeep from "../assets/deepperfectLabelLogo.png";
 import logoBamboleo from "../assets/bamboleoLabelLogo.png";
