@@ -150,7 +150,7 @@ gsap.registerPlugin(ScrollTrigger);
 const sectionRef = ref(null);
 const photoImgRef = ref(null);
 
-/** Logos de sellos en `src/assets` (carrusel en la card “Respaldo en cabina”). */
+/** Logos de sellos en `src/assets` (carrusel en la card “Respaldo en cabina”).*/
 const labelLogos = [
   { id: "criterio", name: "Criterio", src: logoCriterio },
   { id: "deep", name: "Deeperfect", src: logoDeep },
