@@ -1,8 +1,8 @@
 <template>
-  <section ref="heroRootRef" class="hero">
+  <section id="inicio" ref="heroRootRef" class="hero">
     <div class="hero__header">
-      <header class="hero__nav">
-        <a href="/" class="hero__logo">
+      <header class="hero__nav" :class="{ 'hero__nav--open': navOpen }">
+        <a href="/" class="hero__logo" @click="navOpen = false">
           <img
             class="hero__logo-img"
             :src="logoMark"
@@ -13,20 +13,53 @@
           />
         </a>
 
-        <nav class="hero__menu" aria-label="Principal">
-          <a href="#" class="hero__pill hero__pill--active" aria-current="page">
-            <span class="hero__pill-dot" aria-hidden="true" />
-            Home
-          </a>
-          <a href="#" class="hero__link">Music</a>
-          <a href="#" class="hero__link">About</a>
-          <a href="#" class="hero__link">Live Sets</a>
-        </nav>
+        <button
+          type="button"
+          class="hero__burger"
+          :aria-expanded="navOpen ? 'true' : 'false'"
+          aria-controls="hero-nav-panel"
+          aria-label="Abrir o cerrar menú"
+          @click="toggleNav"
+        >
+          <span class="hero__burger-lines" aria-hidden="true">
+            <span class="hero__burger-bar" />
+            <span class="hero__burger-bar" />
+            <span class="hero__burger-bar" />
+          </span>
+        </button>
 
-        <a href="#" class="hero__cta">
-          <span class="hero__cta-dot" aria-hidden="true" />
-          Contacto
-        </a>
+        <div id="hero-nav-panel" class="hero__nav-panel">
+          <nav class="hero__menu" aria-label="Principal">
+            <p class="hero__menu-kicker">
+              <span class="hero__menu-kicker-line" aria-hidden="true" />
+              <span class="hero__menu-kicker-text">Menú</span>
+            </p>
+            <a href="#" class="hero__link" @click="navOpen = false">
+              <span class="hero__menu-index" aria-hidden="true">01</span>
+              <span class="hero__menu-text">Home</span>
+            </a>
+            <a href="#" class="hero__link" @click="navOpen = false">
+              <span class="hero__menu-index" aria-hidden="true">02</span>
+              <span class="hero__menu-text">Music</span>
+            </a>
+            <a href="#" class="hero__link" @click="navOpen = false">
+              <span class="hero__menu-index" aria-hidden="true">03</span>
+              <span class="hero__menu-text">About</span>
+            </a>
+            <a href="#" class="hero__link" @click="navOpen = false">
+              <span class="hero__menu-index" aria-hidden="true">04</span>
+              <span class="hero__menu-text">Live Sets</span>
+            </a>
+          </nav>
+
+          <div class="hero__nav-panel-foot">
+            <p class="hero__nav-foot-kicker">Consultas &amp; booking</p>
+            <a href="#" class="hero__cta" @click="navOpen = false">
+              <span class="hero__cta-dot" aria-hidden="true" />
+              <span class="hero__cta-label">Contacto</span>
+            </a>
+          </div>
+        </div>
       </header>
     </div>
 
@@ -111,7 +144,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import logoMark from "../assets/nombreNacho.png";
@@ -136,6 +169,30 @@ const heroRootRef = ref(null);
 const cardRef = ref(null);
 const thumbImgRef = ref(null);
 const carouselIndex = ref(0);
+const navOpen = ref(false);
+
+function toggleNav() {
+  navOpen.value = !navOpen.value;
+}
+
+function onNavKeydown(e) {
+  if (e.key === "Escape") navOpen.value = false;
+}
+
+function onResizeNav() {
+  if (typeof window === "undefined") return;
+  if (window.innerWidth > 768) navOpen.value = false;
+}
+
+watch(navOpen, (open) => {
+  if (typeof document === "undefined") return;
+  const w = typeof window !== "undefined" ? window.innerWidth : 1024;
+  if (w <= 768) {
+    document.body.style.overflow = open ? "hidden" : "";
+  } else {
+    document.body.style.overflow = "";
+  }
+});
 
 const CAROUSEL_INTERVAL_MS = 5200;
 
@@ -199,6 +256,9 @@ function advanceCarousel() {
 }
 
 onMounted(() => {
+  window.addEventListener("keydown", onNavKeydown);
+  window.addEventListener("resize", onResizeNav);
+
   nextTick(() => {
     const root = heroRootRef.value;
     const card = cardRef.value;
@@ -233,6 +293,9 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener("keydown", onNavKeydown);
+  window.removeEventListener("resize", onResizeNav);
+  document.body.style.overflow = "";
   if (carouselTimer != null) {
     window.clearInterval(carouselTimer);
     carouselTimer = null;
@@ -293,6 +356,62 @@ onUnmounted(() => {
   padding: var(--pad-y-nav) var(--nav-pad-x);
 }
 
+.hero__nav-panel {
+  display: contents;
+}
+
+.hero__burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #0a0a0a;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hero__burger:focus-visible {
+  outline: 2px solid #0a0a0a;
+  outline-offset: 2px;
+}
+
+.hero__burger-lines {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 1.35rem;
+}
+
+.hero__burger-bar {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+  transform-origin: center;
+}
+
+.hero__nav--open .hero__burger-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hero__nav--open .hero__burger-bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.hero__nav--open .hero__burger-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 .hero__logo {
   grid-column: 1;
   justify-self: start;
@@ -323,34 +442,6 @@ onUnmounted(() => {
   min-width: 0;
   padding-inline: 0.35rem;
   flex-wrap: nowrap;
-}
-
-.hero__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.38rem 0.9rem 0.38rem 0.55rem;
-  border-radius: 999px;
-  background: #0a0a0a;
-  color: #fff;
-  text-decoration: none;
-  font-size: clamp(0.8125rem, 1.15vw, 0.9375rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  flex-shrink: 0;
-}
-
-.hero__pill-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #fff;
-  flex-shrink: 0;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
-}
-
-.hero__pill--active {
-  border: none;
 }
 
 .hero__link {
@@ -403,6 +494,56 @@ onUnmounted(() => {
   border-radius: 50%;
   background: #000;
   flex-shrink: 0;
+}
+
+/* Desktop / tablet: el panel usa display:contents; el pie también, para no romper el grid del header */
+.hero__nav-panel-foot {
+  display: contents;
+}
+
+/* Solo móvil (≤768): kicker, índices y pie editorial */
+.hero__menu-kicker {
+  display: none;
+  margin: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hero__menu-kicker-line {
+  display: block;
+  flex: 1;
+  max-width: 4.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(10, 10, 10, 0.35), rgba(10, 10, 10, 0));
+}
+
+.hero__menu-kicker-text {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.42);
+  white-space: nowrap;
+}
+
+.hero__menu-index {
+  display: none;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(10, 10, 10, 0.32);
+  line-height: 1;
+}
+
+.hero__nav-foot-kicker {
+  display: none;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.38);
 }
 
 /* Área bajo la navbar: altura explícita para que la card no colapse (flex min-height:0) */
@@ -676,16 +817,27 @@ onUnmounted(() => {
   border: 0;
 }
 
-.hero__sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  .hero__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+@keyframes heroMenuFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 1200px) {
@@ -735,6 +887,7 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .hero__header {
     position: relative;
+    z-index: 300;
   }
 
   .hero {
@@ -744,16 +897,260 @@ onUnmounted(() => {
     max-height: none;
     overflow-x: clip;
     overflow-y: visible;
+    --header-total: auto;
+  }
+
+  /* Sobreescribe el flex column de max-width 960px: logo y burger en una fila */
+  .hero__nav {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto;
+    align-items: center;
+    justify-items: stretch;
+    position: relative;
+    z-index: 1;
+    min-height: 0;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .hero__logo {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    position: relative;
+    z-index: 260;
+  }
+
+  .hero__burger {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    position: relative;
+    z-index: 260;
+  }
+
+  /* Overlay pantalla completa: no ocupa fila en el grid ni empuja el hero */
+  .hero__nav-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 250;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: max(5.25rem, calc(env(safe-area-inset-top) + 3.25rem))
+      clamp(1.35rem, 6vw, 2rem) max(1.35rem, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    background:
+      linear-gradient(165deg, rgba(255, 255, 255, 0.55) 0%, transparent 38%),
+      linear-gradient(180deg, var(--page-bg, #f2f2f2) 0%, #e8e8e8 100%);
+    border-top: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-0.5rem);
+    transition:
+      opacity 0.35s ease,
+      visibility 0.35s ease,
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero__nav-panel::before {
+    content: "";
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(10, 10, 10, 0.2) 0%, transparent 72%);
+    pointer-events: none;
+    opacity: 0.85;
+  }
+
+  .hero__nav--open .hero__nav-panel {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .hero__nav--open .hero__menu-kicker {
+    animation: heroMenuFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.05s backwards;
+  }
+
+  .hero__nav--open .hero__menu .hero__link:nth-child(2) {
+    animation: heroMenuFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+  }
+
+  .hero__nav--open .hero__menu .hero__link:nth-child(3) {
+    animation: heroMenuFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
+  }
+
+  .hero__nav--open .hero__menu .hero__link:nth-child(4) {
+    animation: heroMenuFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+  }
+
+  .hero__nav--open .hero__menu .hero__link:nth-child(5) {
+    animation: heroMenuFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.25s backwards;
+  }
+
+  .hero__nav--open .hero__nav-panel-foot {
+    animation: heroMenuFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.32s backwards;
+  }
+
+  .hero__menu-kicker {
+    display: flex;
+    width: 100%;
+    padding-bottom: 1.1rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(10, 10, 10, 0.08);
+  }
+
+  .hero__menu-index {
+    display: block;
+  }
+
+  .hero__nav-foot-kicker {
+    display: block;
+  }
+
+  .hero__nav-panel-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: clamp(1.35rem, 4.5vh, 2.15rem);
+    border-top: 1px solid rgba(10, 10, 10, 0.1);
+  }
+
+  .hero__menu {
+    grid-column: unset;
+    grid-row: unset;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 0;
+    width: 100%;
+    min-height: 0;
+    padding-inline: 0;
+  }
+
+  .hero__menu .hero__link {
+    display: grid;
+    grid-template-columns: minmax(2rem, 2.35rem) minmax(0, 1fr);
+    gap: 0.85rem 1.1rem;
+    align-items: baseline;
+    width: 100%;
+    box-sizing: border-box;
+    padding: clamp(0.95rem, 2.8vh, 1.35rem) 0;
+    border-bottom: 1px solid rgba(10, 10, 10, 0.07);
+    font-size: clamp(1.45rem, 6.2vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    text-align: left;
+    color: #0a0a0a;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .hero__menu .hero__link:last-of-type {
+    border-bottom: none;
+  }
+
+  .hero__menu .hero__link:active {
+    transform: scale(0.985);
+  }
+
+  .hero__menu .hero__link:focus-visible {
+    outline: 2px solid rgba(10, 10, 10, 0.28);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .hero__nav-panel .hero__cta {
+    grid-column: unset;
+    grid-row: unset;
+    justify-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0;
+    padding: clamp(1rem, 3vh, 1.25rem) 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    font-size: clamp(1.2rem, 4.8vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: #0a0a0a;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .hero__nav-panel .hero__cta::after {
+    content: "";
+    flex: 1 1 auto;
+    max-width: 5rem;
+    height: 1px;
+    background: rgba(10, 10, 10, 0.2);
+  }
+
+  .hero__nav-panel .hero__cta:hover {
+    transform: none;
+    box-shadow: none;
+    border: none;
+    opacity: 0.55;
+  }
+
+  .hero__nav-panel .hero__cta:active {
+    transform: scale(0.985);
+  }
+
+  .hero__nav-panel .hero__cta:focus-visible {
+    outline: 2px solid rgba(10, 10, 10, 0.28);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .hero__nav-panel .hero__cta-dot {
+    display: none;
   }
 
   .hero__stage {
     flex: 1 1 auto;
-    min-height: calc(100dvh - var(--header-total));
+    min-height: calc(100dvh - 4.25rem);
+    /* Más margen lateral / inferior → card un poco más chica en pantalla */
+    padding: clamp(0.45rem, 2vw, 0.65rem) clamp(0.7rem, 5.5vw, 1.2rem)
+      clamp(0.55rem, 2.8vh, 1rem);
+    box-sizing: border-box;
   }
 
   .hero__shell {
     padding-top: 1.25rem;
     min-height: auto;
+    padding-left: clamp(0.85rem, 4vw, 1.25rem);
+    padding-right: clamp(0.85rem, 4vw, 1.25rem);
   }
 
   .hero__main {
@@ -764,12 +1161,15 @@ onUnmounted(() => {
   .hero__mid {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .hero__lede {
+    display: none !important;
   }
 
   .hero__services {
-    text-align: left;
-    align-self: flex-start;
+    display: none !important;
   }
 
   .hero__bottom {
@@ -783,7 +1183,7 @@ onUnmounted(() => {
 
   .hero__bottom-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto;
     justify-items: stretch;
     align-items: start;
   }
@@ -794,24 +1194,31 @@ onUnmounted(() => {
   }
 
   .hero__carousel {
-    grid-column: 1;
-    grid-row: 2;
-    max-width: min(100%, 10.5rem);
-    justify-self: end;
-    transform: none;
-  }
-
-  .hero__thumb {
-    max-width: 100%;
+    display: none !important;
   }
 
   .hero__mega-logo {
     max-width: 100%;
-    height: clamp(3.25rem, 22vw, 6rem);
+    height: clamp(2.85rem, 19vw, 5.25rem);
   }
 
   .hero__card {
     border-radius: clamp(1rem, 3vw, 1.35rem);
+  }
+}
+
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  .hero__nav-panel {
+    transform: none;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease;
+  }
+
+  .hero__nav--open .hero__menu-kicker,
+  .hero__nav--open .hero__menu .hero__link,
+  .hero__nav--open .hero__nav-panel-foot {
+    animation: none;
   }
 }
 </style>

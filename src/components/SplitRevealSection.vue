@@ -1,5 +1,10 @@
 <template>
-  <section ref="sectionRef" class="clients-projects" aria-label="Tracks y proyectos">
+  <section
+    id="tracks"
+    ref="sectionRef"
+    class="clients-projects"
+    aria-label="Tracks y proyectos"
+  >
     <div class="clients-projects__inner-wrap">
       <div ref="viewportEl" class="clients-projects__viewport">
         <div class="clients-projects__top">

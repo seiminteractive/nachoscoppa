@@ -3,6 +3,7 @@
   <SplitRevealSection />
   <MusicSection />
   <LiveSetsSection />
+  <SiteFooter />
   <!-- Contacto oculto por ahora -->
   <ContactSection v-if="false" />
 </template>
@@ -12,6 +13,7 @@ import Hero from "./components/Hero.vue";
 import SplitRevealSection from "./components/SplitRevealSection.vue";
 import MusicSection from "./components/MusicSection.vue";
 import LiveSetsSection from "./components/LiveSetsSection.vue";
+import SiteFooter from "./components/SiteFooter.vue";
 import ContactSection from "./components/ContactSection.vue";
 </script>
 
@@ -27,6 +29,20 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --page-bg: #f2f2f2;
+  /* Anclas (#tracks, #dj-info…): compensar navbar fija en desktop / tablet */
+  scroll-padding-top: clamp(3.85rem, 8.9vw, 4.65rem);
+}
+
+@media (max-width: 960px) and (min-width: 769px) {
+  html {
+    scroll-padding-top: clamp(8.6rem, 28.8vw, 11.5rem);
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    scroll-padding-top: 0.35rem;
+  }
 }
 
 html,
