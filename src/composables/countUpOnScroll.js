@@ -30,14 +30,11 @@ export function countUpOnScroll(trigger, el, opts = {}) {
   const ease = opts.ease ?? "power2.out";
   const start = opts.start ?? "top 94%";
   const format = opts.format ?? ((v) => String(Math.round(v)));
-  /* Priority más bajo = se recalcula después de pins (-10 por defecto). */
-  const refreshPriority = opts.refreshPriority ?? -10;
 
   ScrollTrigger.create({
     trigger,
     start,
     once: true,
-    refreshPriority,
     onEnter: () => {
       const obj = { v: from };
       el.textContent = format(from);
