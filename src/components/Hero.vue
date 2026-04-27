@@ -189,17 +189,17 @@ onMounted(() => {
 
       const mega = megaLogoRef.value;
       if (mega && !prefersReducedMotion()) {
+        /* Solo Y: no animar opacity — con filter (blanco) el fade se ve negro a medio camino */
         gsap.fromTo(
           mega,
-          { opacity: 0, y: 36 },
+          { y: 36 },
           {
-            opacity: 1,
             y: 0,
             duration: 1.85,
             ease: "power3.out",
             delay: 0.48,
             onComplete: () => {
-              gsap.set(mega, { clearProps: "opacity,transform" });
+              gsap.set(mega, { clearProps: "transform" });
             },
           }
         );
