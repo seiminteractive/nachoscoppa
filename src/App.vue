@@ -3,6 +3,33 @@
 </template>
 
 <script setup>
+import { onMounted, onUnmounted } from "vue";
+
+let rafId = null;
+
+function setRealVh() {
+  // window.innerHeight da el alto real del viewport en Safari iOS
+  // (excluye la barra de URL y controles del navegador)
+  document.documentElement.style.setProperty(
+    "--real-vh",
+    `${window.innerHeight}px`
+  );
+}
+
+onMounted(() => {
+  setRealVh();
+  window.addEventListener("resize", setRealVh);
+  // En iOS, orientationchange dispara con el tamaño anterior; esperamos un frame
+  window.addEventListener("orientationchange", () => {
+    rafId = requestAnimationFrame(setRealVh);
+  });
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", setRealVh);
+  window.removeEventListener("orientationchange", setRealVh);
+  if (rafId) cancelAnimationFrame(rafId);
+});
 </script>
 
 <style>

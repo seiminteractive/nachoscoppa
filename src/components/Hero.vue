@@ -191,15 +191,15 @@ onMounted(() => {
       if (mega && !prefersReducedMotion()) {
         gsap.fromTo(
           mega,
-          { opacity: 0, y: 36 },
+          { autoAlpha: 0, y: 36 },
           {
-            opacity: 1,
+            autoAlpha: 1,
             y: 0,
             duration: 1.85,
             ease: "power3.out",
             delay: 0.48,
             onComplete: () => {
-              gsap.set(mega, { clearProps: "opacity,transform" });
+              gsap.set(mega, { clearProps: "opacity,visibility,transform" });
             },
           }
         );
@@ -439,6 +439,8 @@ onUnmounted(() => {
 .hero__mega-logo--light {
   filter: brightness(0) invert(1)
     drop-shadow(0 10px 40px rgba(0, 0, 0, 0.42));
+  /* Oculto hasta que GSAP lo revele con autoAlpha (evita flash negro) */
+  visibility: hidden;
 }
 
 .hero__thumb {
@@ -538,23 +540,17 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .hero {
     padding-top: 0;
-    /* Forzar altura exacta del viewport */
+    /* --real-vh se calcula con window.innerHeight en App.vue (Safari iOS safe) */
     height: 100vh;
     height: 100dvh;
+    height: var(--real-vh, 100dvh);
     min-height: 100vh;
     min-height: 100dvh;
+    min-height: var(--real-vh, 100dvh);
     max-height: none;
     overflow-x: clip;
     overflow-y: visible;
     --header-total: auto;
-  }
-
-  /* Safari iOS: -webkit-fill-available solo cuando lo soporta (evita romper Chrome) */
-  @supports (-webkit-touch-callout: none) {
-    .hero {
-      height: -webkit-fill-available;
-      min-height: -webkit-fill-available;
-    }
   }
 
   /*

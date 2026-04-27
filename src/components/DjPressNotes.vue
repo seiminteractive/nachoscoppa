@@ -129,12 +129,6 @@ function setupHorizontalScroll() {
   if (dist < 16) return;
 
   layoutScrolljack.value = true;
-  /* Antes del pin, GSAP medía solo la altura del carrusel → viewport descubierto y el scroll “filtraba” la siguiente sección. */
-  gsap.set(pin, {
-    minHeight: "100dvh",
-    backgroundColor: "#f2f2f2",
-    zIndex: 35,
-  });
 
   gsap.to(track, {
     x: () => -scrollAmount(),
@@ -145,9 +139,8 @@ function setupHorizontalScroll() {
       end: () => `+=${scrollAmount()}`,
       pin: true,
       pinSpacing: true,
-      pinType: "fixed",
-      scrub: 1,
-      anticipatePin: 1,
+      scrub: 1.2,
+      anticipatePin: 0,
       invalidateOnRefresh: true,
     },
   });
