@@ -537,35 +537,17 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .hero {
     padding-top: 0;
-    /* --real-vh se calcula con window.innerHeight en App.vue (Safari iOS safe) */
-    height: 100vh;
-    height: 100dvh;
     height: var(--real-vh, 100dvh);
-    min-height: 100vh;
-    min-height: 100dvh;
     min-height: var(--real-vh, 100dvh);
-    max-height: 100vh;
-    max-height: 100dvh;
     max-height: var(--real-vh, 100dvh);
     overflow: hidden;
+    /* Fondo sólido en mobile: tapa la sección de abajo que sube con margin negativo */
+    background: var(--page-bg, #f2f2f2);
     --header-total: auto;
   }
 
-  /*
-   * Rectángulo más ancho/alto que la card: tapa el carrusel / sección siguiente
-   * que se asoma por los costados del gutter del stage.
-   */
   .hero__card-stack::before {
-    content: "";
-    position: absolute;
-    z-index: 0;
-    left: calc(-1 * clamp(0.65rem, 4.5vw, 1.35rem));
-    right: calc(-1 * clamp(0.65rem, 4.5vw, 1.35rem));
-    top: calc(-1 * clamp(0.5rem, 2.5vw, 0.85rem));
-    bottom: calc(-1 * clamp(0.5rem, 2.8vh, 1rem));
-    border-radius: 0;
-    background: var(--page-bg, #f2f2f2);
-    pointer-events: none;
+    display: none;
   }
 
   .hero__stage {
