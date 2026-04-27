@@ -156,6 +156,7 @@ onUnmounted(() => {
 
 <style scoped>
 .agenda {
+  position: relative;
   background: var(--page-bg, #f2f2f2);
   color: #0a0a0a;
   padding: clamp(3.5rem, 8vw, 6.5rem) var(--site-pad-x, clamp(1rem, 4vw, 3rem))

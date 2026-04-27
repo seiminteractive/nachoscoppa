@@ -146,9 +146,11 @@ function setupHorizontalScroll() {
       pin: true,
       pinSpacing: true,
       pinType: "fixed",
-      scrub: 1,
+      scrub: 1.5,
       anticipatePin: 1,
       invalidateOnRefresh: true,
+      fastScrollEnd: true,
+      refreshPriority: -1,
     },
   });
 }
@@ -189,6 +191,8 @@ onUnmounted(() => {
   --dj-notes-card: #ffffff;
   padding-block: clamp(1.5rem, 3.5vw, 2.5rem);
   border-top: 1px solid rgba(0, 0, 0, 0.06);
+  /* Asegura que el contenedor no se corte en Chrome mobile */
+  overflow: visible;
 }
 
 /* Base: altura del contenido. Con --scrolljack: toda la ventana tapada mientras dura el pin (evita que se vea la sección de abajo). */
@@ -199,14 +203,15 @@ onUnmounted(() => {
   width: 100%;
 }
 
+
 .dj-notes__scene--scrolljack {
   box-sizing: border-box;
   min-height: 100vh;
   min-height: 100dvh;
-  /* Centra el carrusel en el viewport del pin; el viewport NO debe estirarse a toda la altura o el track queda pegado arriba. */
+  /* Centra el carrusel en el viewport del pin */
   align-items: center;
   justify-content: flex-start;
-  /* Navbar fija + margen para ascenders del mega (evita recorte bajo el header) */
+  /* Navbar fija + margen para ascenders del mega */
   padding-top: calc(
     var(--site-header-offset, clamp(3.85rem, 8.9vw, 4.65rem)) + env(safe-area-inset-top, 0px) +
       clamp(0.45rem, 1.5vh, 1rem)
@@ -216,7 +221,9 @@ onUnmounted(() => {
   );
   background: var(--page-bg, #f2f2f2);
   z-index: 35;
-  isolation: isolate;
+  position: relative;
+  /* Extiende el fondo para evitar huecos en Chrome mobile */
+  margin-bottom: -1px;
 }
 
 .dj-notes__head {

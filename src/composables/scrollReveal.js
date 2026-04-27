@@ -4,8 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Entrada / salida con scroll. `end` por defecto `bottom top`: el reverse al bajar recién cuando el
- * trigger salió por arriba del viewport (no a mitad de pantalla).
+ * Entrada / salida con scroll. `end: bottom top` = reverse solo cuando el elemento
+ * sale completamente por arriba del viewport.
  */
 export const REVEAL_TOGGLE_ACTIONS = "play reverse play reverse";
 
@@ -37,6 +37,8 @@ export function revealOnScroll(trigger, targets, opts = {}) {
   const end = opts.end ?? "bottom top";
   const fastScrollEnd = opts.fastScrollEnd ?? false;
   const toggleActions = opts.toggleActions ?? REVEAL_TOGGLE_ACTIONS;
+  /* Priority más bajo = se recalcula después de pins. -10 por defecto para estar después de DjPressNotes (-1). */
+  const refreshPriority = opts.refreshPriority ?? -10;
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     gsap.set(list, { autoAlpha: 1, y: 0, clearProps: "willChange" });
@@ -54,6 +56,7 @@ export function revealOnScroll(trigger, targets, opts = {}) {
         toggleActions,
         invalidateOnRefresh: true,
         fastScrollEnd,
+        refreshPriority,
       },
     })
     .to(list, {

@@ -538,12 +538,23 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .hero {
     padding-top: 0;
-    height: auto;
+    /* Forzar altura exacta del viewport */
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
     min-height: 100dvh;
     max-height: none;
     overflow-x: clip;
     overflow-y: visible;
     --header-total: auto;
+  }
+
+  /* Safari iOS: -webkit-fill-available solo cuando lo soporta (evita romper Chrome) */
+  @supports (-webkit-touch-callout: none) {
+    .hero {
+      height: -webkit-fill-available;
+      min-height: -webkit-fill-available;
+    }
   }
 
   /*
@@ -565,11 +576,17 @@ onUnmounted(() => {
 
   .hero__stage {
     flex: 1 1 auto;
-    min-height: calc(100dvh - 4.25rem);
+    /* Safari iOS: usar 0 en lugar de calc() que puede fallar; el flex se estira */
+    min-height: 0;
     /* Más margen lateral / inferior → card un poco más chica en pantalla */
     padding: clamp(0.45rem, 2vw, 0.65rem) clamp(0.7rem, 5.5vw, 1.2rem)
       clamp(0.55rem, 2.8vh, 1rem);
     box-sizing: border-box;
+  }
+
+  .hero__card-stack {
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .hero__shell {
@@ -639,6 +656,8 @@ onUnmounted(() => {
   }
 
   .hero__card {
+    flex: 1 1 auto;
+    min-height: 0;
     position: relative;
     z-index: 1;
     border-radius: clamp(1rem, 3vw, 1.35rem);
