@@ -191,15 +191,14 @@ onMounted(() => {
       if (mega && !prefersReducedMotion()) {
         gsap.fromTo(
           mega,
-          { autoAlpha: 0, y: 36 },
+          { y: 36 },
           {
-            autoAlpha: 1,
             y: 0,
             duration: 1.85,
             ease: "power3.out",
             delay: 0.48,
             onComplete: () => {
-              gsap.set(mega, { clearProps: "opacity,visibility,transform" });
+              gsap.set(mega, { clearProps: "transform" });
             },
           }
         );
@@ -439,8 +438,6 @@ onUnmounted(() => {
 .hero__mega-logo--light {
   filter: brightness(0) invert(1)
     drop-shadow(0 10px 40px rgba(0, 0, 0, 0.42));
-  /* Oculto hasta que GSAP lo revele con autoAlpha (evita flash negro) */
-  visibility: hidden;
 }
 
 .hero__thumb {
@@ -547,9 +544,10 @@ onUnmounted(() => {
     min-height: 100vh;
     min-height: 100dvh;
     min-height: var(--real-vh, 100dvh);
-    max-height: none;
-    overflow-x: clip;
-    overflow-y: visible;
+    max-height: 100vh;
+    max-height: 100dvh;
+    max-height: var(--real-vh, 100dvh);
+    overflow: hidden;
     --header-total: auto;
   }
 
