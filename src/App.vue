@@ -1,20 +1,8 @@
 <template>
-  <Hero />
-  <SplitRevealSection />
-  <MusicSection />
-  <LiveSetsSection />
-  <SiteFooter />
-  <!-- Contacto oculto por ahora -->
-  <ContactSection v-if="false" />
+  <RouterView />
 </template>
 
 <script setup>
-import Hero from "./components/Hero.vue";
-import SplitRevealSection from "./components/SplitRevealSection.vue";
-import MusicSection from "./components/MusicSection.vue";
-import LiveSetsSection from "./components/LiveSetsSection.vue";
-import SiteFooter from "./components/SiteFooter.vue";
-import ContactSection from "./components/ContactSection.vue";
 </script>
 
 <style>
@@ -29,6 +17,9 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --page-bg: #f2f2f2;
+  /* Misma columna de contenido que la sección Agenda / fechas */
+  --site-content-max: 1320px;
+  --site-pad-x: clamp(1rem, 4vw, 3rem);
   /* Anclas (#tracks, #dj-info…): compensar navbar fija en desktop / tablet */
   scroll-padding-top: clamp(3.85rem, 8.9vw, 4.65rem);
 }
@@ -77,5 +68,14 @@ body {
   #app {
     --site-header-offset: clamp(8.6rem, 28.8vw, 11.5rem);
   }
+}
+
+/* Contenedor de notas (fuera de Sobre el artista): mismo gutter que agenda */
+.press-notes-region {
+  --dj-pad-x: var(--site-pad-x);
+  position: relative;
+  z-index: 1;
+  padding-inline: var(--dj-pad-x);
+  background: var(--page-bg, #f2f2f2);
 }
 </style>

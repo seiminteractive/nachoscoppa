@@ -10,15 +10,8 @@
         </div>
 
         <h2 id="dj-info-headline" class="dj-info__headline">
-          <span class="dj-info__headline-line dj-info__headline-line--dark">
-            Resultados que se escuchan en cada sesión,
-          </span>
-          <span class="dj-info__headline-line dj-info__headline-line--muted">
-            desde Rosario a clubes y festivales globales.
-          </span>
-          <span class="dj-info__headline-line dj-info__headline-line--muted">
-            Así suena el 2026.
-          </span>
+          Headliner: Con solo 25 años, Nacho Scoppa lleva su sonido desde Rosario a las pistas del
+          mundo.
         </h2>
       </div>
 
@@ -42,9 +35,9 @@
         <div class="dj-info__aside">
           <div class="dj-info__intro">
             <p class="dj-info__intro-p">
-              <strong class="dj-info__intro-lead">Sin relleno: solo energía y groove.</strong>
-              Producción y sets con foco en la pista. Cada proyecto busca conectar cabina y público,
-              noche tras noche.
+              <strong class="dj-info__intro-lead">Caracterizado por el groove,</strong>
+              cada track y presentación de Nacho están pensados para conectar con quienes están del
+              otro lado.
             </p>
           </div>
 
@@ -70,18 +63,23 @@
           <div class="dj-info__cards" aria-label="Datos destacados">
             <article class="dj-info__card dj-info__card--stat">
               <span class="dj-info__card-index">01</span>
-              <p class="dj-info__stat">50+</p>
+              <div class="dj-info__stat-block">
+                <p class="dj-info__stat">+27</p>
+                <p class="dj-info__stat-label">países</p>
+              </div>
             </article>
             <article class="dj-info__card dj-info__card--stat">
               <span class="dj-info__card-index">02</span>
-              <p class="dj-info__stat">15+</p>
+              <div class="dj-info__stat-block">
+                <p class="dj-info__stat">+60K</p>
+                <p class="dj-info__stat-label">oyentes mensuales</p>
+              </div>
             </article>
 
             <article class="dj-info__card dj-info__card--story">
               <p class="dj-info__card-kicker">Trayectoria internacional</p>
               <p class="dj-info__card-body">
-                Nacido en Rosario (2000), lleva su sonido a clubes y festivales en Europa y
-                Sudamérica — de UNVRS y The Warehouse Project a Pacha Barcelona y The BPM Festival.
+                Ha recorrido escenarios de Europa, Sudamérica y Norteamerica, con fechas en espacios de referencia - ADE, Pacha, UNVRS, The Warehouse Project, The BPM Festival
               </p>
             </article>
 
@@ -144,6 +142,7 @@ import logoBamboleo from "../assets/bamboleoLabelLogo.png";
 import logoCoppados from "../assets/coppadosLabelLogo.webp";
 import logoMoan from "../assets/logoMoanLabel.png";
 import { revealOnScroll } from "../composables/scrollReveal";
+import { countUpOnScroll } from "../composables/countUpOnScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -171,22 +170,48 @@ onMounted(() => {
     if (!section) return;
 
     ctx = gsap.context(() => {
-      const badgeHeadline = section.querySelectorAll(".dj-info__badge-row, .dj-info__headline-line");
-      const photoWrap = section.querySelector(".dj-info__photo-wrap");
-      const intro = section.querySelector(".dj-info__intro");
-      const press = section.querySelector(".dj-info__presskit");
-      const cards = section.querySelectorAll(".dj-info__cards .dj-info__card");
+      /** Cada bloque con su propio ScrollTrigger: anima al entrar en vista, no con el borde del section. */
+      const blocks = [
+        section.querySelector(".dj-info__badge-row"),
+        section.querySelector("#dj-info-headline"),
+        section.querySelector(".dj-info__photo-wrap"),
+        section.querySelector(".dj-info__intro"),
+        ...section.querySelectorAll(".dj-info__presskit .dj-info__presskit-btn"),
+        ...section.querySelectorAll(".dj-info__cards .dj-info__card"),
+      ].filter((el) => el instanceof HTMLElement);
 
-      const revealTargets = [...badgeHeadline, photoWrap, intro, press, ...cards].filter(Boolean);
+      for (const el of blocks) {
+        revealOnScroll(el, [el]);
+      }
 
-      revealOnScroll(section, revealTargets, {
-        y: 36,
-        duration: 0.65,
-        stagger: 0.07,
-        ease: "power2.out",
-        start: "top 85%",
-        end: "bottom 18%",
-      });
+      const statCards = section.querySelectorAll(".dj-info__card--stat");
+      const statVals = section.querySelectorAll(".dj-info__card--stat .dj-info__stat");
+      if (statCards[0] && statVals[0]) {
+        countUpOnScroll(statCards[0], statVals[0], {
+          to: 27,
+          format: (v) => `+${Math.round(v)}`,
+        });
+      }
+      if (statCards[1] && statVals[1]) {
+        countUpOnScroll(statCards[1], statVals[1], {
+          to: 60,
+          format: (v) => `+${Math.round(v)}K`,
+        });
+      }
+      const idxEls = section.querySelectorAll(".dj-info__card--stat .dj-info__card-index");
+      if (statCards[0] && idxEls[0]) {
+        countUpOnScroll(statCards[0], idxEls[0], {
+          to: 1,
+          format: (v) => String(Math.round(v)).padStart(2, "0"),
+        });
+      }
+      if (statCards[1] && idxEls[1]) {
+        countUpOnScroll(statCards[1], idxEls[1], {
+          from: 0,
+          to: 2,
+          format: (v) => String(Math.round(v)).padStart(2, "0"),
+        });
+      }
 
       const photoImg = photoImgRef.value;
       if (
@@ -230,10 +255,10 @@ onUnmounted(() => {
   --dj-muted: #525252;
   --dj-soft: #666666;
   --dj-index: #a3a3a3;
-  --dj-pad-x: clamp(1.5rem, 5vw, 4rem);
+  --dj-pad-x: var(--site-pad-x, clamp(1rem, 4vw, 3rem));
   position: relative;
   z-index: 1;
-  padding: clamp(3.5rem, 10vh, 6rem) var(--dj-pad-x) clamp(4rem, 12vh, 7rem);
+  padding: clamp(7.5rem, 20vh, 12rem) var(--dj-pad-x) clamp(4rem, 12vh, 7rem);
   background: var(--dj-bg);
   color: var(--dj-black);
   font-family: "Inter", system-ui, sans-serif;
@@ -241,7 +266,7 @@ onUnmounted(() => {
 }
 
 .dj-info__inner {
-  max-width: min(100%, 92rem);
+  max-width: min(100%, var(--site-content-max, 1320px));
   margin: 0 auto;
 }
 
@@ -296,25 +321,7 @@ onUnmounted(() => {
   font-weight: 700;
   letter-spacing: -0.032em;
   line-height: 1.32;
-}
-
-.dj-info__headline-line {
-  display: block;
-}
-
-.dj-info__headline-line--dark {
   color: var(--dj-black);
-  margin-bottom: 0.12em;
-}
-
-.dj-info__headline-line--muted {
-  color: var(--dj-muted);
-  font-weight: 500;
-  margin-bottom: 0.1em;
-}
-
-.dj-info__headline-line--muted:last-child {
-  margin-bottom: 0;
 }
 
 /* Intro: en desktop se alinea a la derecha en @media (min-width: 901px) */
@@ -447,6 +454,13 @@ onUnmounted(() => {
   letter-spacing: 0.06em;
 }
 
+.dj-info__stat-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
 .dj-info__stat {
   margin: 0;
   font-size: clamp(1.75rem, 3.5vw, 2.45rem);
@@ -455,6 +469,16 @@ onUnmounted(() => {
   line-height: 0.98;
   color: var(--dj-black);
   text-align: left;
+}
+
+.dj-info__stat-label {
+  margin: 0;
+  max-width: 12rem;
+  font-size: clamp(0.6875rem, 1.05vw, 0.8125rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  color: var(--dj-muted);
 }
 
 .dj-info__card--story,
@@ -671,6 +695,24 @@ onUnmounted(() => {
   }
 }
 
+@media (max-width: 820px) {
+  .dj-info {
+    /* Igual que Featured: simétrico sin reserva para barra social en móvil */
+    padding-left: clamp(1.35rem, 5.5vw, 2rem);
+    padding-right: clamp(1.35rem, 5.5vw, 2rem);
+  }
+}
+
+@media (max-width: 1200px) {
+  .dj-info {
+    /*
+     * Antes: padding-top enorme (20vh) + Featured padding-bottom (24vh) = hueco doble.
+     * Ritmo cercano a Music (Split) → Release del momento.
+     */
+    padding-top: clamp(2.25rem, 5.5vh, 3.5rem);
+  }
+}
+
 @media (max-width: 900px) {
   .dj-info__lead {
     flex-wrap: wrap;
@@ -730,6 +772,8 @@ onUnmounted(() => {
   .dj-info__cards {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
+    /* Tablet / móvil horizontal: más aire que el bloque “sellado” de desktop */
+    gap: clamp(0.55rem, 2.2vw, 0.85rem);
   }
 }
 
@@ -737,7 +781,7 @@ onUnmounted(() => {
   .dj-info__cards {
     grid-template-columns: 1fr;
     grid-template-rows: none;
-    gap: 0.125rem;
+    gap: clamp(0.9rem, 3.5vw, 1.35rem);
   }
 
   .dj-info__card--stat,

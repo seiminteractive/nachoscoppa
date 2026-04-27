@@ -13,11 +13,11 @@
             <span class="live-sets__badge-icon" aria-hidden="true">
               <span class="live-sets__badge-plus">+</span>
             </span>
-            <span class="live-sets__badge-label">What we do</span>
+            <span class="live-sets__badge-label">Conoce a Nacho</span>
           </div>
 
           <h2 id="live-sets-heading" class="live-sets__title">
-            LIVE SETS.<span class="live-sets__title-count">({{ liveSets.length }})</span>
+            SETS EN VIVO.<span ref="liveSetsCountRef" class="live-sets__title-count">(0)</span>
           </h2>
 
           <ul class="live-sets__list" role="list">
@@ -31,7 +31,7 @@
                 :class="{ 'is-open': openId === item.id }"
               >
                 <div class="live-sets__index-col" aria-hidden="true">
-                  <span class="live-sets__index">({{ formatIndex(index) }})</span>
+                  <span class="live-sets__index">(000)</span>
                 </div>
                 <div class="live-sets__main-col">
                   <div class="live-sets__head-line">
@@ -42,13 +42,13 @@
                     />
                     <a
                       class="live-sets__preview-hit"
-                      :href="item.youtubeUrl"
+                      :href="item.streamUrl"
                       target="_blank"
                       rel="noopener noreferrer"
                       @click.stop
                     >
                       <span class="live-sets__preview-hit-label"
-                        >Ver en YouTube: {{ item.title }}</span
+                        >{{ item.listenLabel }}: {{ item.title }}</span
                       >
                     </a>
                     <button
@@ -86,11 +86,11 @@
                         </p>
                         <a
                           class="live-sets__youtube-cta"
-                          :href="item.youtubeUrl"
+                          :href="item.streamUrl"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Ver en YouTube
+                          {{ item.listenLabel }}
                           <span class="live-sets__youtube-cta-arrow" aria-hidden="true">→</span>
                         </a>
                       </div>
@@ -112,19 +112,32 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import previewRio from "../assets/youtubeRio.avif";
-import previewMousik from "../assets/youtubeMousik.avif";
-import previewLaFabrica from "../assets/youtubeLaFabrica.avif";
-import previewLaJuanita from "../assets/youtubeLaJuanita.avif";
 import preview4get from "../assets/youtube4get.avif";
+import previewMetropolitano from "../assets/liveMetropolitano.png";
 import { revealOnScroll } from "../composables/scrollReveal";
+import { countUpOnScroll } from "../composables/countUpOnScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const rootRef = ref(null);
 const cardRef = ref(null);
+const liveSetsCountRef = ref(null);
 const openId = ref(null);
 
 const liveSets = [
+  {
+    id: "ls-metropolitano",
+    title: "Nacho Scoppa Live @ Metropolitano, Rosario 07.06.2025",
+    date: "7 jun 2025",
+    venue: "Metropolitano",
+    city: "Rosario, AR",
+    detail: "Nacho Scoppa Live @ Metropolitano, Rosario — 07.06.2025.",
+    extra: null,
+    listenLabel: "Escuchar en SoundCloud",
+    streamUrl:
+      "https://soundcloud.com/nachoscoppaofficial/nacho-scoppa-live-metrpolitano-rosario-07062025",
+    previewSrc: previewMetropolitano,
+  },
   {
     id: "ls-rio",
     title: "Río Electronic Music · Buenos Aires",
@@ -134,42 +147,9 @@ const liveSets = [
     detail:
       "Nacho Scoppa live @ Río Electronic Music, Buenos Aires — 15.06.2025.",
     extra: null,
-    youtubeUrl: "https://www.youtube.com/watch?v=08lYFUwXb28",
+    listenLabel: "Ver en YouTube",
+    streamUrl: "https://www.youtube.com/watch?v=08lYFUwXb28",
     previewSrc: previewRio,
-  },
-  {
-    id: "ls-mousik",
-    title: "Mousike · Orlando, FL",
-    date: "14 mar 2026",
-    venue: "Mousike",
-    city: "Orlando, FL, US",
-    detail: "NACHO SCOPPA LIVE @ Orlando FL | Mousike | 03-14-2026.",
-    extra: null,
-    youtubeUrl: "https://youtu.be/DBUOAaZxtT8",
-    previewSrc: previewMousik,
-  },
-  {
-    id: "ls-fabrica",
-    title: "B2B Sergio Saffe · La Fábrica",
-    date: "—",
-    venue: "La Fábrica Córdoba",
-    city: "Córdoba, AR",
-    detail: "Sergio Saffe b2b Nacho Scoppa @ La Fábrica Córdoba.",
-    extra: null,
-    youtubeUrl: "https://youtu.be/Gb_g51Yc5Gs",
-    previewSrc: previewLaFabrica,
-  },
-  {
-    id: "ls-juanita",
-    title: "B2B Muter · La Juanita · Estadio UNO",
-    date: "29 nov 2025",
-    venue: "Estadio UNO (La Juanita)",
-    city: "AR",
-    detail:
-      "Muter B2B Nacho Scoppa @ Estadio UNO by La Juanita Music — 29/11/2025.",
-    extra: null,
-    youtubeUrl: "https://youtu.be/H080vu_2BY8",
-    previewSrc: previewLaJuanita,
   },
   {
     id: "ls-4get",
@@ -180,7 +160,8 @@ const liveSets = [
     detail:
       "Nacho Scoppa Live @ 4GET Estación Belgrano, Santa Fe — 07.12.2025.",
     extra: null,
-    youtubeUrl: "https://youtu.be/mHsk3idrQxU",
+    listenLabel: "Ver en YouTube",
+    streamUrl: "https://youtu.be/mHsk3idrQxU",
     previewSrc: preview4get,
   },
 ];
@@ -228,15 +209,25 @@ onMounted(() => {
       const inner = card.querySelector(".live-sets__inner");
       if (inner) {
         const rows = inner.querySelectorAll(".live-sets__badge-row, .live-sets__title, .live-sets__item");
-        revealOnScroll(root, rows, {
-          y: 32,
-          duration: 0.55,
-          stagger: 0.06,
-          ease: "power2.out",
-          start: "top 82%",
-          end: "bottom 12%",
+        revealOnScroll(root, rows);
+      }
+
+      const countEl = liveSetsCountRef.value;
+      if (root && countEl) {
+        countUpOnScroll(root, countEl, {
+          to: liveSets.length,
+          format: (v) => `(${Math.round(v)})`,
         });
       }
+      const items = root.querySelectorAll(".live-sets__item");
+      items.forEach((item, i) => {
+        const idx = item.querySelector(".live-sets__index");
+        if (!idx) return;
+        countUpOnScroll(item, idx, {
+          to: i + 1,
+          format: (v) => `(${String(Math.round(v)).padStart(3, "0")})`,
+        });
+      });
     }, root);
 
     ScrollTrigger.refresh();
@@ -309,9 +300,6 @@ onUnmounted(() => {
   border-radius: clamp(1.375rem, 2.4vw, 2rem);
   overflow: hidden;
   will-change: transform;
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.12),
-    0 24px 48px rgba(0, 0, 0, 0.35);
   background: #000;
   pointer-events: auto;
 }
@@ -346,7 +334,9 @@ onUnmounted(() => {
   flex: 1 1 auto;
   min-height: 0;
   width: 100%;
-  padding: var(--live-card-pad-y) var(--live-card-pad-x) var(--live-card-pad-y);
+  /* Aire lateral extra sobre la card: contenido un poco más angosto. */
+  padding: var(--live-card-pad-y) calc(var(--live-card-pad-x) + 1.8rem)
+    var(--live-card-pad-y);
   color: #fff;
   box-sizing: border-box;
 }
@@ -831,25 +821,50 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .live-sets {
+    --live-card-pad-x: clamp(1rem, 4vw, 1.35rem);
+  }
+
   .live-sets__inner {
-    --live-index-w: clamp(3.25rem, 22vw, 5.25rem);
-    --live-col-gap: clamp(2rem, 8vw, 3.75rem);
-    --live-hover-expand: clamp(1.35rem, 9vw, 5.5rem);
+    /*
+     * Desktop: índice ancho + gap grande alineado a “Services”.
+     * Móvil: columnas compactas para que el título use casi todo el ancho.
+     */
+    --live-index-w: 2.7rem;
+    --live-col-gap: 0.65rem;
+    --live-hover-expand: clamp(0.65rem, 4vw, 2rem);
+    /* Sin reserva extra a la derecha (antes compensaba la barra social). */
+    padding: var(--live-card-pad-y) var(--live-card-pad-x);
   }
 
-  .live-sets__trigger,
-  .live-sets__index-col {
-    padding-top: clamp(1.25rem, 2.5vh, 1.75rem);
-    padding-bottom: clamp(1.25rem, 2.5vh, 1.75rem);
-  }
-
-  .live-sets__preview-hit:focus-visible {
-    outline-offset: 1px;
+  .live-sets__stage {
+    --live-pad-x: clamp(0.5rem, 2vw, 0.85rem);
   }
 
   .live-sets__title {
     margin-left: var(--live-title-inset);
     max-width: calc(100% - var(--live-title-inset));
+    font-size: clamp(2.125rem, 7vw, 3rem);
+    margin-bottom: clamp(1.35rem, 4vh, 2rem);
+  }
+
+  .live-sets__trigger,
+  .live-sets__index-col {
+    padding-top: clamp(1.1rem, 2.2vh, 1.5rem);
+    padding-bottom: clamp(1.1rem, 2.2vh, 1.5rem);
+  }
+
+  .live-sets__name {
+    font-size: clamp(0.98rem, 3.6vw, 1.08rem);
+    line-height: 1.38;
+  }
+
+  .live-sets__index {
+    font-size: 0.7rem;
+  }
+
+  .live-sets__preview-hit:focus-visible {
+    outline-offset: 1px;
   }
 }
 </style>

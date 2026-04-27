@@ -1,100 +1,90 @@
 <template>
-  <footer class="site-footer" aria-labelledby="site-footer-heading">
+  <footer ref="footerRootRef" class="site-footer" aria-labelledby="site-footer-heading">
     <div class="site-footer__inner">
       <div class="site-footer__intro">
-        <div class="site-footer__intro-top">
-          <div class="site-footer__badge-row">
-            <span class="site-footer__badge-icon" aria-hidden="true">
-              <span class="site-footer__badge-plus">+</span>
-            </span>
-            <span class="site-footer__badge-label">Seguimos en contacto</span>
-          </div>
+        <h2 id="site-footer-heading" class="site-footer__visually-hidden">Pie de página</h2>
+        <div class="site-footer__intro-row">
+          <p class="site-footer__lede">
+            House, groove y sets en vivo — de Rosario al mundo.
+          </p>
           <img
             class="site-footer__wordmark"
             :src="logoMark"
-            alt=""
+            alt="Nacho Scoppa"
             width="200"
             height="48"
             decoding="async"
           />
         </div>
-
-        <p class="site-footer__lede">
-          House, groove y sets en vivo — de Rosario a clubes y festivales.
-        </p>
       </div>
 
-      <div class="site-footer__grid">
-        <div class="site-footer__col">
-          <span class="site-footer__col-index" aria-hidden="true">01</span>
-          <div class="site-footer__col-body">
-            <p class="site-footer__kicker">Navegación</p>
-            <nav class="site-footer__nav" aria-label="En esta página">
-              <a class="site-footer__nav-link" href="#inicio">
-                <span class="site-footer__nav-text">Inicio</span>
-                <span class="site-footer__nav-arrow" aria-hidden="true">→</span>
-              </a>
-              <a class="site-footer__nav-link" href="#tracks">
-                <span class="site-footer__nav-text">Tracks</span>
-                <span class="site-footer__nav-arrow" aria-hidden="true">→</span>
-              </a>
-              <a class="site-footer__nav-link" href="#dj-info">
-                <span class="site-footer__nav-text">Sobre</span>
-                <span class="site-footer__nav-arrow" aria-hidden="true">→</span>
-              </a>
-              <a class="site-footer__nav-link" href="#live-sets">
-                <span class="site-footer__nav-text">Live sets</span>
-                <span class="site-footer__nav-arrow" aria-hidden="true">→</span>
-              </a>
-            </nav>
+      <div class="site-footer__main">
+        <nav class="site-footer__nav" aria-label="En esta página">
+          <a class="site-footer__nav-link" :href="`${hashLinkBase}#inicio`">Inicio</a>
+          <a class="site-footer__nav-link" :href="`${hashLinkBase}#tracks`">Tracks</a>
+          <a class="site-footer__nav-link" :href="`${hashLinkBase}#dj-info`">Sobre</a>
+          <a class="site-footer__nav-link" :href="`${hashLinkBase}#live-sets`">Live sets</a>
+        </nav>
+
+        <div class="site-footer__block">
+          <p class="site-footer__label">Contacto</p>
+          <div class="site-footer__contact-lines">
+            <p class="site-footer__contact-line">
+              <span class="site-footer__contact-role">Booking</span>
+              <a class="site-footer__mailto" :href="mailtoBooking">{{ bookingEmail }}</a>
+            </p>
+            <p class="site-footer__contact-line">
+              <span class="site-footer__contact-role">Entrevistas / notas</span>
+              <a class="site-footer__mailto" :href="mailtoPress">{{ pressEmail }}</a>
+            </p>
           </div>
         </div>
 
-        <div class="site-footer__col">
-          <span class="site-footer__col-index" aria-hidden="true">02</span>
-          <div class="site-footer__col-body">
-            <p class="site-footer__kicker">Booking</p>
-            <a class="site-footer__link-strong" :href="mailtoHref">{{ bookingEmail }}</a>
-            <p class="site-footer__hint">Respuesta habitual en 24–48 h.</p>
+        <div class="site-footer__block">
+          <p class="site-footer__label">Press kit</p>
+          <div class="site-footer__press-links">
+            <a
+              class="site-footer__text-link"
+              :href="presskitEsUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Español (PDF)
+            </a>
+            <a
+              class="site-footer__text-link"
+              :href="presskitEnUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              English (PDF)
+            </a>
           </div>
         </div>
 
-        <div class="site-footer__col">
-          <span class="site-footer__col-index" aria-hidden="true">03</span>
-          <div class="site-footer__col-body">
-            <p class="site-footer__kicker">Press kit</p>
-            <div class="site-footer__press-links">
+        <div class="site-footer__block site-footer__block--social">
+          <p class="site-footer__label">Redes</p>
+          <ul class="site-footer__social" aria-label="Redes sociales">
+            <li v-for="link in socialLinks" :key="link.name" class="site-footer__social-item">
               <a
-                class="site-footer__link site-footer__link--row"
-                :href="presskitEsUrl"
+                :href="link.href"
+                class="site-footer__social-link"
                 target="_blank"
                 rel="noopener noreferrer"
+                :aria-label="link.name"
               >
-                <span>Español (PDF)</span>
-                <span class="site-footer__link-arrow" aria-hidden="true">→</span>
+                <Icon :icon="link.icon" class="site-footer__social-icon" aria-hidden="true" />
               </a>
-              <a
-                class="site-footer__link site-footer__link--row"
-                :href="presskitEnUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span>English (PDF)</span>
-                <span class="site-footer__link-arrow" aria-hidden="true">→</span>
-              </a>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <div class="site-footer__rule-wrap" aria-hidden="true">
-        <span class="site-footer__rule-accent" />
-        <hr class="site-footer__rule" />
-      </div>
+      <hr class="site-footer__rule" />
 
       <div class="site-footer__bottom">
         <p class="site-footer__legal">
-          © {{ year }} Nacho Scoppa. Todos los derechos reservados.
+          © <span ref="footerYearRef">{{ footerYearFrom }}</span> Nacho Scoppa. Todos los derechos reservados.
         </p>
         <p class="site-footer__meta">Rosario · Argentina</p>
       </div>
@@ -103,345 +93,287 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, onMounted, onUnmounted, nextTick } from "vue";
+import { Icon } from "@iconify/vue";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import logoMark from "../assets/nombreNacho.png";
+import { socialLinks } from "../data/socialLinks.js";
+import { countUpOnScroll } from "../composables/countUpOnScroll";
 
-const bookingEmail = "booking@nachoscoppa.com";
+gsap.registerPlugin(ScrollTrigger);
+
+/** Prefijo para anclas internas (p. ej. `/` en `/agenda` → `/#inicio`). */
+defineProps({
+  hashLinkBase: { type: String, default: "" },
+});
+
+const bookingEmail = "aldo@conceptoneagency.com";
+const pressEmail = "eugeniacoppados@gmail.com";
 const presskitEsUrl = "/presskit/nacho-scoppa-es.pdf";
 const presskitEnUrl = "/presskit/nacho-scoppa-en.pdf";
 
 const year = new Date().getFullYear();
+const footerYearFrom = Math.max(year - 14, 2000);
+const footerRootRef = ref(null);
+const footerYearRef = ref(null);
+let footerScrollCtx;
 
-const mailtoHref = computed(
+const mailtoBooking = computed(
   () => `mailto:${bookingEmail}?subject=${encodeURIComponent("Booking — Nacho Scoppa")}`,
 );
+
+const mailtoPress = computed(
+  () =>
+    `mailto:${pressEmail}?subject=${encodeURIComponent("Entrevista / nota de prensa — Nacho Scoppa")}`,
+);
+
+onMounted(() => {
+  nextTick(() => {
+    const root = footerRootRef.value;
+    if (!root) return;
+    footerScrollCtx = gsap.context(() => {
+      const bottom = root.querySelector(".site-footer__bottom");
+      const yEl = footerYearRef.value;
+      if (bottom && yEl) {
+        countUpOnScroll(bottom, yEl, {
+          from: footerYearFrom,
+          to: year,
+          format: (v) => String(Math.round(v)),
+        });
+      }
+    }, root);
+    ScrollTrigger.refresh();
+  });
+});
+
+onUnmounted(() => {
+  footerScrollCtx?.revert();
+});
 </script>
 
 <style scoped>
 .site-footer {
-  --sf-black: #0a0a0a;
-  --sf-muted: #525252;
-  --sf-soft: #737373;
-  --sf-pad-x: clamp(1.5rem, 5vw, 4rem);
+  --sf-ink: #0a0a0a;
+  --sf-pad-x: var(--site-pad-x, clamp(1rem, 4vw, 3rem));
   position: relative;
   z-index: 2;
-  padding: clamp(3.25rem, 9vh, 5.75rem) var(--sf-pad-x) clamp(2.35rem, 6.5vh, 3.75rem);
-  background:
-    linear-gradient(175deg, rgba(255, 255, 255, 0.55) 0%, transparent 42%),
-    linear-gradient(180deg, var(--page-bg, #f2f2f2) 0%, #e9e9e9 100%);
-  color: var(--sf-black);
+  padding: clamp(2.5rem, 6vh, 4rem) var(--sf-pad-x) clamp(2rem, 5vh, 3.25rem);
+  background: var(--sf-ink);
+  color: #f5f5f5;
   font-family: "Inter", system-ui, sans-serif;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
-  overflow: clip;
-}
-
-.site-footer::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.18) 0%, transparent 70%);
-  pointer-events: none;
-  opacity: 0.9;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .site-footer__inner {
-  position: relative;
-  max-width: min(100%, 92rem);
+  max-width: min(100%, var(--site-content-max, 1320px));
   margin: 0 auto;
 }
 
-.site-footer__intro {
-  margin-bottom: clamp(2.75rem, 6vw, 4.25rem);
+.site-footer__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.site-footer__intro-top {
+.site-footer__intro {
+  margin-bottom: clamp(2rem, 4.5vw, 2.75rem);
+  padding-bottom: clamp(1.5rem, 3vw, 2rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.site-footer__intro-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 1rem 1.5rem;
-  margin-bottom: clamp(1.35rem, 3.5vw, 2rem);
-}
-
-.site-footer__badge-row {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  flex-shrink: 0;
-}
-
-.site-footer__badge-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  background: var(--sf-black);
-  color: #fff;
-}
-
-.site-footer__badge-plus {
-  font-size: 1rem;
-  font-weight: 300;
-  line-height: 1;
-  margin-top: -1px;
-}
-
-.site-footer__badge-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.55);
-}
-
-.site-footer__wordmark {
-  display: block;
-  height: clamp(1rem, 2.2vw, 1.45rem);
-  width: auto;
-  max-width: min(42vw, 11rem);
-  object-fit: contain;
-  object-position: right center;
-  filter: brightness(0);
-  opacity: 0.88;
-}
-
-.site-footer__title {
-  margin: 0 0 clamp(1rem, 2.5vw, 1.5rem);
-  max-width: min(40rem, 100%);
-  font-size: clamp(1.35rem, 3.2vw, 2.35rem);
-  font-weight: 700;
-  letter-spacing: -0.034em;
-  line-height: 1.28;
-}
-
-.site-footer__title-line {
-  display: block;
-}
-
-.site-footer__title-line--dark {
-  color: var(--sf-black);
-  margin-bottom: 0.2em;
-}
-
-.site-footer__title-line--muted {
-  color: var(--sf-muted);
-  font-weight: 600;
-  font-size: 0.92em;
-  letter-spacing: -0.028em;
 }
 
 .site-footer__lede {
   margin: 0;
-  max-width: min(34rem, 100%);
-  font-size: clamp(0.9375rem, 1.35vw, 1.0625rem);
+  flex: 1 1 12rem;
+  max-width: min(28rem, 100%);
+  font-size: clamp(0.875rem, 1.15vw, 0.96875rem);
   font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: 1.5;
-  color: var(--sf-soft);
+  line-height: 1.45;
+  color: rgba(245, 245, 245, 0.58);
 }
 
-.site-footer__grid {
+.site-footer__wordmark {
+  display: block;
+  height: clamp(0.95rem, 2vw, 1.25rem);
+  width: auto;
+  max-width: min(40vw, 10rem);
+  object-fit: contain;
+  object-position: right center;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
+}
+
+.site-footer__main {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: clamp(0.65rem, 1.2vw, 0.9rem);
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset;
-  overflow: hidden;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
 }
 
-@media (min-width: 720px) {
-  .site-footer__grid {
-    grid-template-columns: 1.15fr 1fr 1fr;
+@media (min-width: 640px) {
+  .site-footer__main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.site-footer__col {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.85rem 1.15rem;
-  align-items: start;
-  padding: clamp(1.35rem, 3vw, 1.85rem) clamp(1.15rem, 3vw, 1.65rem);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-}
-
-@media (min-width: 720px) {
-  .site-footer__col {
-    border-bottom: none;
-    border-right: 1px solid rgba(0, 0, 0, 0.07);
-    min-height: 100%;
+@media (min-width: 960px) {
+  .site-footer__main {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.5rem, 3vw, 2.75rem);
   }
-
-  .site-footer__col:last-child {
-    border-right: none;
-  }
-}
-
-.site-footer__col:last-child {
-  border-bottom: none;
-}
-
-.site-footer__col-index {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  font-variant-numeric: tabular-nums;
-  color: rgba(10, 10, 10, 0.3);
-  line-height: 1.6;
-  padding-top: 0.15rem;
-}
-
-.site-footer__col-body {
-  min-width: 0;
-}
-
-.site-footer__kicker {
-  margin: 0 0 0.65rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--sf-soft);
 }
 
 .site-footer__nav {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  align-items: center;
 }
 
 .site-footer__nav-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.55rem 0;
-  font-size: 0.96875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--sf-black);
+  color: #f5f5f5;
   text-decoration: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  transition:
-    opacity 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.site-footer__nav-link:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.site-footer__nav-link:first-child {
-  padding-top: 0;
+  transition: opacity 0.2s ease;
 }
 
 .site-footer__nav-link:hover {
-  opacity: 0.55;
+  opacity: 0.65;
 }
 
-.site-footer__nav-arrow {
+.site-footer__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 245, 0.45);
+}
+
+.site-footer__contact-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.site-footer__contact-line {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.site-footer__contact-role {
+  font-size: 0.75rem;
   font-weight: 500;
-  opacity: 0.35;
-  flex-shrink: 0;
+  color: rgba(245, 245, 245, 0.5);
+  letter-spacing: -0.01em;
 }
 
-.site-footer__link-strong {
-  display: inline-block;
-  font-size: clamp(0.96875rem, 1.2vw, 1.0625rem);
+.site-footer__mailto {
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--sf-black);
+  color: #ffffff;
   text-decoration: none;
   word-break: break-word;
   transition: opacity 0.2s ease;
-  margin-bottom: 0.45rem;
 }
 
-.site-footer__link-strong:hover {
-  opacity: 0.55;
-}
-
-.site-footer__hint {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  color: rgba(82, 82, 82, 0.9);
-  line-height: 1.4;
+.site-footer__mailto:hover {
+  opacity: 0.75;
 }
 
 .site-footer__press-links {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  align-items: flex-start;
+  gap: 0.45rem;
 }
 
-.site-footer__link {
+.site-footer__text-link {
+  font-size: 0.9375rem;
   font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--sf-black);
+  letter-spacing: -0.02em;
+  color: #f5f5f5;
   text-decoration: none;
   transition: opacity 0.2s ease;
 }
 
-.site-footer__link--row {
+.site-footer__text-link:hover {
+  opacity: 0.65;
+}
+
+.site-footer__block--social .site-footer__label {
+  margin-bottom: 0.65rem;
+}
+
+.site-footer__social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.site-footer__social-item {
+  display: block;
+}
+
+.site-footer__social-link {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  font-size: 0.96875rem;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5f5f5;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.site-footer__link--row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.site-footer__social-link:hover,
+.site-footer__social-link:focus-visible {
+  transform: translateY(-1px);
+  background: #ffffff;
+  color: var(--sf-ink);
+  border-color: #ffffff;
 }
 
-.site-footer__link--row:first-of-type {
-  padding-top: 0;
-}
-
-.site-footer__link:hover {
-  opacity: 0.5;
-}
-
-.site-footer__link-arrow {
-  font-weight: 500;
-  opacity: 0.4;
-  flex-shrink: 0;
-}
-
-.site-footer__rule-wrap {
-  position: relative;
-  margin: clamp(2rem, 4.5vw, 2.85rem) 0 1.35rem;
-}
-
-.site-footer__rule-accent {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: clamp(2.5rem, 8vw, 4.5rem);
-  height: 2px;
-  background: linear-gradient(90deg, var(--sf-black), transparent);
-  opacity: 0.2;
-  pointer-events: none;
+.site-footer__social-icon {
+  width: 1rem;
+  height: 1rem;
 }
 
 .site-footer__rule {
-  margin: 0;
+  margin: clamp(1.75rem, 4vw, 2.5rem) 0 1.25rem;
   border: 0;
   height: 1px;
-  background: rgba(0, 0, 0, 0.09);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .site-footer__bottom {
@@ -457,7 +389,7 @@ const mailtoHref = computed(
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: -0.01em;
-  color: var(--sf-muted);
+  color: rgba(245, 245, 245, 0.52);
   line-height: 1.45;
 }
 
@@ -465,16 +397,86 @@ const mailtoHref = computed(
   margin: 0;
   font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(82, 82, 82, 0.85);
+  color: rgba(245, 245, 245, 0.45);
 }
 
 .site-footer__nav-link:focus-visible,
-.site-footer__link-strong:focus-visible,
-.site-footer__link:focus-visible {
-  outline: 2px solid rgba(10, 10, 10, 0.35);
+.site-footer__mailto:focus-visible,
+.site-footer__text-link:focus-visible,
+.site-footer__social-link:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.45);
   outline-offset: 3px;
-  border-radius: 2px;
+}
+
+/* Una columna (<640px): todo centrado; press kit en fila */
+@media (max-width: 639px) {
+  .site-footer__intro {
+    margin-bottom: clamp(1.35rem, 3.5vw, 1.85rem);
+    padding-bottom: clamp(1rem, 2.5vw, 1.35rem);
+  }
+
+  .site-footer__intro-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.65rem;
+  }
+
+  .site-footer__lede {
+    /* Evita flex-grow: el bloque no debe estirarse y vaciar espacio hasta el wordmark */
+    flex: 0 1 auto;
+    width: 100%;
+    max-width: 22rem;
+    text-align: center;
+  }
+
+  .site-footer__wordmark {
+    object-position: center;
+    max-width: min(75vw, 11rem);
+    height: clamp(1rem, 4.2vw, 1.15rem);
+  }
+
+  .site-footer__main {
+    text-align: center;
+  }
+
+  .site-footer__nav {
+    justify-content: center;
+  }
+
+  .site-footer__block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .site-footer__contact-lines {
+    align-items: center;
+  }
+
+  .site-footer__contact-line {
+    align-items: center;
+    text-align: center;
+  }
+
+  .site-footer__press-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem 1.1rem;
+  }
+
+  .site-footer__social {
+    justify-content: center;
+  }
+
+  .site-footer__bottom {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 </style>

@@ -3,8 +3,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Entrada y salida suaves; al volver a pasar por la sección se reproduce de nuevo. */
-export const REVEAL_TOGGLE = "play reverse play reverse";
+/**
+ * Entrada / salida con scroll. `end` por defecto `bottom top`: el reverse al bajar recién cuando el
+ * trigger salió por arriba del viewport (no a mitad de pantalla).
+ */
+export const REVEAL_TOGGLE_ACTIONS = "play reverse play reverse";
 
 /**
  * @param {HTMLElement | null} trigger
@@ -26,12 +29,14 @@ export function revealOnScroll(trigger, targets, opts = {}) {
 
   if (!list.length) return null;
 
-  const y = opts.y ?? 40;
-  const duration = opts.duration ?? 0.72;
-  const stagger = opts.stagger ?? 0.07;
-  const ease = opts.ease ?? "power2.out";
-  const start = opts.start ?? "top 88%";
-  const end = opts.end ?? "bottom 15%";
+  const y = opts.y ?? 22;
+  const duration = opts.duration ?? 0.78;
+  const stagger = opts.stagger ?? 0.09;
+  const ease = opts.ease ?? "power2.inOut";
+  const start = opts.start ?? "top 82%";
+  const end = opts.end ?? "bottom top";
+  const fastScrollEnd = opts.fastScrollEnd ?? false;
+  const toggleActions = opts.toggleActions ?? REVEAL_TOGGLE_ACTIONS;
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     gsap.set(list, { autoAlpha: 1, y: 0, clearProps: "willChange" });
@@ -46,9 +51,9 @@ export function revealOnScroll(trigger, targets, opts = {}) {
         trigger,
         start,
         end,
-        toggleActions: REVEAL_TOGGLE,
+        toggleActions,
         invalidateOnRefresh: true,
-        fastScrollEnd: true,
+        fastScrollEnd,
       },
     })
     .to(list, {

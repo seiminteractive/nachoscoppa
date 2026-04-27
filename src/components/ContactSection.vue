@@ -152,7 +152,7 @@ function onSubmit() {
 
 <style scoped>
 .contact {
-  --contact-pad-x: clamp(1.5rem, 4vw, 3rem);
+  --contact-pad-x: var(--site-pad-x, clamp(1rem, 4vw, 3rem));
   --contact-black: #000000;
   --contact-white: #ffffff;
   --contact-input-bg: #f5f5f5;
@@ -209,7 +209,7 @@ function onSubmit() {
 .contact__inner {
   position: relative;
   z-index: 2;
-  max-width: min(100%, 80rem);
+  max-width: min(100%, var(--site-content-max, 1320px));
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);

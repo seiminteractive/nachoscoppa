@@ -19,37 +19,7 @@
               role="region"
               aria-label="Lanzamientos en carrusel"
             >
-              <button
-                type="button"
-                class="clients-projects__marquee-btn clients-projects__marquee-btn--prev"
-                aria-label="Ver tracks anteriores"
-                aria-controls="tracks-marquee-scroll"
-                @click="scrollMarquee(-1)"
-              >
-                <svg class="clients-projects__marquee-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                class="clients-projects__marquee-btn clients-projects__marquee-btn--next"
-                aria-label="Ver tracks siguientes"
-                aria-controls="tracks-marquee-scroll"
-                @click="scrollMarquee(1)"
-              >
-                <svg class="clients-projects__marquee-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    fill="currentColor"
-                    d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
-                  />
-                </svg>
-              </button>
-              <div
-                id="tracks-marquee-scroll"
-                ref="marqueeScrollEl"
-                class="clients-projects__marquee-viewport"
-                @scroll.passive="onMarqueeScroll"
-              >
+              <div class="clients-projects__marquee-viewport">
                 <div class="clients-projects__marquee-track">
                   <div
                     v-for="pass in marqueePasses"
@@ -86,14 +56,13 @@
 
         <div ref="bottomEl" class="clients-projects__bottom">
           <div class="clients-projects__bottom-inner">
-            <p class="clients-projects__count">(27)</p>
+            <p class="clients-projects__count"><span ref="splitCountRef">(0)</span></p>
             <div class="clients-projects__tracks-main">
               <h2 class="clients-projects__title">Music.</h2>
-              <p class="clients-projects__year">©2026</p>
+              <p class="clients-projects__year">©<span ref="splitYearRef">2014</span></p>
             </div>
             <p class="clients-projects__blurb">
-              Explore the latest sounds and high-energy cuts shaping my sets for the 2026 season — club-ready
-              grooves, peak-time rollers, and the tracks that are moving the floor right now.
+              - "Esta es parte de la música que está marcando mi carrera y forma parte de los sets en vivo que realizo al rededor del mundo. Este 2026 está cargado de nuevos releases, espero poder compartirselos pronto!"
             </p>
           </div>
         </div>
@@ -107,6 +76,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
+import { countUpOnScroll } from "../composables/countUpOnScroll";
 
 import coverBonny from "../assets/bonnyEp.webp";
 import coverIlike from "../assets/ilikeitEp.webp";
@@ -142,58 +112,11 @@ const marqueePasses = [1, 2];
 const sectionRef = ref(null);
 const viewportEl = ref(null);
 const bottomEl = ref(null);
-const marqueeScrollEl = ref(null);
-
-const loopWidthPx = ref(0);
+const splitCountRef = ref(null);
+const splitYearRef = ref(null);
 
 let ctx;
-let marqueeRaf = 0;
-let resizeObserver;
-
-function isDesktopMarquee() {
-  return typeof window !== "undefined" && window.matchMedia("(min-width: 901px)").matches;
-}
-
-function measureMarqueeLoop() {
-  const root = marqueeScrollEl.value;
-  const track = root?.querySelector(".clients-projects__marquee-track");
-  if (!track || track.scrollWidth < 4) return;
-  loopWidthPx.value = track.scrollWidth / 2;
-}
-
-function normalizeMarqueeScroll() {
-  const el = marqueeScrollEl.value;
-  const w = loopWidthPx.value;
-  if (!el || w <= 0 || !isDesktopMarquee()) return;
-  let sl = el.scrollLeft;
-  const eps = 2;
-  let changed = false;
-  while (sl >= w - eps) {
-    sl -= w;
-    changed = true;
-  }
-  while (sl < -eps) {
-    sl += w;
-    changed = true;
-  }
-  if (changed) el.scrollLeft = sl;
-}
-
-function onMarqueeScroll() {
-  if (!isDesktopMarquee()) return;
-  cancelAnimationFrame(marqueeRaf);
-  marqueeRaf = requestAnimationFrame(normalizeMarqueeScroll);
-}
-
-function scrollMarquee(direction) {
-  const el = marqueeScrollEl.value;
-  if (!el || !isDesktopMarquee() || loopWidthPx.value <= 0) return;
-  const step = Math.max(200, Math.min(480, el.clientWidth * 0.38));
-  el.scrollBy({ left: direction * step, behavior: "smooth" });
-  window.setTimeout(() => {
-    normalizeMarqueeScroll();
-  }, 400);
-}
+let splitRevealMm;
 
 onMounted(() => {
   nextTick(() => {
@@ -201,16 +124,8 @@ onMounted(() => {
     const bottom = bottomEl.value;
     if (!viewport || !bottom) return;
 
-    measureMarqueeLoop();
-    resizeObserver = new ResizeObserver(() => measureMarqueeLoop());
-    const trackEl = marqueeScrollEl.value?.querySelector(".clients-projects__marquee-track");
-    if (trackEl) resizeObserver.observe(trackEl);
-
-    requestAnimationFrame(() => {
-      measureMarqueeLoop();
-    });
-
-    ctx = gsap.context(() => {
+    splitRevealMm = ScrollTrigger.matchMedia();
+    splitRevealMm.add("(min-width: 769px)", () => {
       gsap.fromTo(
         bottom,
         { yPercent: 100, autoAlpha: 0 },
@@ -222,24 +137,41 @@ onMounted(() => {
           scrollTrigger: {
             id: "proyectosReveal",
             trigger: viewport,
-            start: "top 52%",
-            end: "top 18%",
+            start: "top 72%",
+            end: "top 22%",
             scrub: true,
             invalidateOnRefresh: true,
           },
         }
       );
+    });
+    splitRevealMm.add("(max-width: 768px)", () => {
+      gsap.set(bottom, { yPercent: 0, autoAlpha: 1 });
+    });
 
-      const section = sectionRef.value;
+    ctx = gsap.context(() => {
       const head = viewport.querySelector(".clients-projects__head");
-      const marquee = viewport.querySelector(".clients-projects__marquee");
-      if (section && head && marquee) {
-        revealOnScroll(section, [head, marquee], {
-          y: 40,
-          duration: 0.65,
-          stagger: 0.12,
-          start: "top 88%",
-          end: "bottom 12%",
+      /** Solo el encabezado: el carrusel de tracks debe verse siempre, sin reveal. */
+      if (head) {
+        revealOnScroll(head, [head]);
+      }
+
+      const bottom = bottomEl.value;
+      const countEl =
+        splitCountRef.value || bottom?.querySelector(".clients-projects__count span") || null;
+      const yearEl =
+        splitYearRef.value || bottom?.querySelector(".clients-projects__year span") || null;
+      if (bottom && countEl) {
+        countUpOnScroll(bottom, countEl, {
+          to: 26,
+          format: (v) => `(${Math.round(v)})`,
+        });
+      }
+      if (bottom && yearEl) {
+        countUpOnScroll(bottom, yearEl, {
+          from: 2014,
+          to: 2026,
+          format: (v) => String(Math.round(v)),
         });
       }
     }, viewportEl);
@@ -249,7 +181,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  resizeObserver?.disconnect();
+  splitRevealMm?.revert();
   ctx?.revert();
 });
 </script>
@@ -259,14 +191,14 @@ onUnmounted(() => {
   position: relative;
   z-index: 2;
   margin-top: calc(-1 * var(--clients-underlap));
-  padding: 0 clamp(0.85rem, 2.5vw, 1.65rem) clamp(3rem, 8vw, 5rem);
+  padding: 0 var(--site-pad-x, clamp(1rem, 4vw, 3rem)) clamp(3rem, 8vw, 5rem);
   background: transparent;
   color: #0a0a0a;
 }
 
 .clients-projects__inner-wrap {
   width: 100%;
-  max-width: min(100%, 88rem);
+  max-width: min(100%, var(--site-content-max, 1320px));
   margin: 0 auto;
 }
 
@@ -335,8 +267,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-inline: calc(-1 * clamp(0.85rem, 2.5vw, 1.65rem));
-  width: calc(100% + 2 * clamp(0.85rem, 2.5vw, 1.65rem));
+  margin-inline: calc(-1 * var(--site-pad-x, clamp(1rem, 4vw, 3rem)));
+  width: calc(100% + 2 * var(--site-pad-x, clamp(1rem, 4vw, 3rem)));
 }
 
 .clients-projects__marquee-viewport {
@@ -349,57 +281,12 @@ onUnmounted(() => {
 .clients-projects__marquee-track {
   display: flex;
   width: max-content;
-  animation: clients-marquee 75s linear infinite;
-  animation-fill-mode: none;
+  animation: clients-marquee 80s linear infinite;
   will-change: transform;
 }
 
 .clients-projects__marquee:hover .clients-projects__marquee-track {
   animation-play-state: paused;
-}
-
-.clients-projects__marquee-btn {
-  display: none;
-  position: absolute;
-  z-index: 3;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2.35rem;
-  height: 2.35rem;
-  padding: 0;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 999px;
-  background: var(--page-bg, #f2f2f2);
-  color: #0a0a0a;
-  cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.clients-projects__marquee-btn:hover {
-  background: #e8e8e8;
-  border-color: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.clients-projects__marquee-btn:focus-visible {
-  outline: 2px solid #0a0a0a;
-  outline-offset: 2px;
-}
-
-.clients-projects__marquee-btn--prev {
-  left: clamp(0.2rem, 1.2vw, 0.55rem);
-}
-
-.clients-projects__marquee-btn--next {
-  right: clamp(0.2rem, 1.2vw, 0.55rem);
-}
-
-.clients-projects__marquee-icon {
-  display: block;
-  margin: 0;
 }
 
 .clients-projects__marquee-group {
@@ -420,44 +307,6 @@ onUnmounted(() => {
   }
 }
 
-/* Desktop: scroll manual + flechas; el bucle se corrige por JS */
-@media (min-width: 901px) {
-  .clients-projects__marquee {
-    /* Hueco a cada lado: la pista de cards queda más angosta y las flechas no la tapan */
-    --marquee-arrow-gutter: clamp(2.85rem, 5.5vw, 4rem);
-  }
-
-  .clients-projects__marquee-viewport {
-    width: calc(100% - 2 * var(--marquee-arrow-gutter));
-    max-width: 100%;
-    margin-inline: auto;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .clients-projects__marquee-viewport::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-
-  .clients-projects__marquee-track {
-    animation: none;
-    will-change: auto;
-  }
-
-  .clients-projects__marquee:hover .clients-projects__marquee-track {
-    animation-play-state: running;
-  }
-
-  .clients-projects__marquee-btn {
-    display: flex;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .clients-projects__marquee-track {
     animation: none;
@@ -465,6 +314,7 @@ onUnmounted(() => {
 
   .clients-projects__marquee-viewport {
     overflow-x: auto;
+    overflow-y: hidden;
     mask-image: none;
     -webkit-mask-image: none;
     scrollbar-width: none;
@@ -596,9 +446,76 @@ onUnmounted(() => {
   max-width: 22rem;
 }
 
+@media (max-width: 820px) {
+  .clients-projects {
+    /* Mismo criterio que Featured / Sobre el artista; carrusel alineado al padding */
+    --split-pad-x: clamp(1.35rem, 5.5vw, 2rem);
+    padding-left: var(--split-pad-x);
+    padding-right: var(--split-pad-x);
+  }
+
+  .clients-projects__marquee {
+    margin-inline: calc(-1 * var(--split-pad-x));
+    width: calc(100% + 2 * var(--split-pad-x));
+  }
+}
+
 @media (max-width: 768px) {
+  /* Evita la rayita bajo el hero: mismo fondo, sin border-top del bloque tracks */
+  .clients-projects__top {
+    border-top: none;
+  }
+
   .clients-projects {
     --clients-underlap: clamp(3.25rem, 16vh, 8rem);
+    /* Término medio: separa del bloque siguiente sin el hueco de antes */
+    padding-bottom: clamp(1.75rem, 5vw, 2.75rem);
+  }
+
+  /*
+   * Sin 100vh fijo: la mitad “Music” ya no ocupa un % del viewport vacío debajo del párrafo.
+   * El reveal con scrub solo aplica en desktop (matchMedia en script).
+   */
+  .clients-projects__viewport {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .clients-projects__top {
+    position: relative;
+    flex: 0 0 auto;
+    height: auto;
+  }
+
+  .clients-projects__bottom {
+    position: relative;
+    flex: 0 0 auto;
+    height: auto;
+    align-items: stretch;
+  }
+
+  .clients-projects__bottom-inner {
+    /* Mucho aire bajo la línea / antes del copy Music */
+    padding-top: clamp(2.25rem, 7.5vh, 4rem);
+    padding-bottom: clamp(1.15rem, 3.5vw, 1.85rem);
+  }
+
+  .clients-projects__top-inner {
+    justify-content: flex-start;
+    /* Aire bajo el carrusel antes del separador */
+    padding: clamp(0.35rem, 2.5vw, 0.65rem) 0 clamp(2rem, 6.5vh, 3.5rem);
+  }
+
+  .clients-projects__head {
+    margin-bottom: clamp(0.45rem, 2vw, 0.7rem);
+  }
+
+  .clients-projects__marquee {
+    flex: 0 0 auto;
+    justify-content: flex-start;
   }
 }
 
@@ -627,6 +544,12 @@ onUnmounted(() => {
     justify-self: start;
     max-width: 36rem;
     padding-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .clients-projects__bottom-inner {
+    gap: clamp(1.1rem, 3vw, 1.45rem);
   }
 }
 
