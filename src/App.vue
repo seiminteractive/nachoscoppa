@@ -5,30 +5,38 @@
 <script setup>
 import { onMounted, onUnmounted } from "vue";
 
-let rafId = null;
+let cleanups = [];
 
 function setRealVh() {
-  // window.innerHeight da el alto real del viewport en Safari iOS
-  // (excluye la barra de URL y controles del navegador)
-  document.documentElement.style.setProperty(
-    "--real-vh",
-    `${window.innerHeight}px`
-  );
+  const h = window.visualViewport
+    ? window.visualViewport.height
+    : window.innerHeight;
+  document.documentElement.style.setProperty("--real-vh", `${h}px`);
 }
 
 onMounted(() => {
   setRealVh();
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", setRealVh);
+    cleanups.push(() =>
+      window.visualViewport.removeEventListener("resize", setRealVh)
+    );
+  }
+
   window.addEventListener("resize", setRealVh);
-  // En iOS, orientationchange dispara con el tamaño anterior; esperamos un frame
-  window.addEventListener("orientationchange", () => {
-    rafId = requestAnimationFrame(setRealVh);
-  });
+  cleanups.push(() => window.removeEventListener("resize", setRealVh));
+
+  const onOrientation = () => requestAnimationFrame(setRealVh);
+  window.addEventListener("orientationchange", onOrientation);
+  cleanups.push(() =>
+    window.removeEventListener("orientationchange", onOrientation)
+  );
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", setRealVh);
-  window.removeEventListener("orientationchange", setRealVh);
-  if (rafId) cancelAnimationFrame(rafId);
+  cleanups.forEach((fn) => fn());
+  cleanups = [];
 });
 </script>
 

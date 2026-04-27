@@ -537,17 +537,29 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .hero {
     padding-top: 0;
-    height: var(--real-vh, 100dvh);
+    height: auto;
     min-height: var(--real-vh, 100dvh);
-    max-height: var(--real-vh, 100dvh);
-    overflow: hidden;
-    /* Fondo sólido en mobile: tapa la sección de abajo que sube con margin negativo */
-    background: var(--page-bg, #f2f2f2);
+    max-height: none;
+    overflow-x: clip;
+    overflow-y: visible;
     --header-total: auto;
   }
 
+  /*
+   * Rectángulo más ancho/alto que la card: tapa el carrusel / sección siguiente
+   * que se asoma por los costados del gutter del stage.
+   */
   .hero__card-stack::before {
-    display: none;
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: calc(-1 * clamp(0.65rem, 4.5vw, 1.35rem));
+    right: calc(-1 * clamp(0.65rem, 4.5vw, 1.35rem));
+    top: calc(-1 * clamp(0.5rem, 2.5vw, 0.85rem));
+    bottom: calc(-1 * clamp(0.5rem, 2.8vh, 1rem));
+    border-radius: 0;
+    background: var(--page-bg, #f2f2f2);
+    pointer-events: none;
   }
 
   .hero__stage {
