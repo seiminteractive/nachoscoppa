@@ -27,10 +27,26 @@
                     class="clients-projects__marquee-group"
                     :aria-hidden="pass === 2 ? 'true' : undefined"
                   >
-                    <article
+                    <component
+                      :is="track.spotifyUrl ? 'a' : 'article'"
                       v-for="track in tracksStrip"
                       :key="`${pass}-${track.uid}`"
                       class="track-card"
+                      :class="{ 'track-card--link': !!track.spotifyUrl }"
+                      v-bind="
+                        track.spotifyUrl
+                          ? {
+                              href: track.spotifyUrl,
+                              target: '_blank',
+                              rel: 'noopener noreferrer',
+                            }
+                          : {}
+                      "
+                      :aria-label="
+                        track.spotifyUrl
+                          ? `Escuchar ${track.title} en Spotify — se abre en una pestaña nueva`
+                          : undefined
+                      "
                     >
                       <div class="track-card__cover">
                         <img
@@ -46,7 +62,7 @@
                       <p class="track-card__meta">
                         {{ track.label }}<span class="track-card__dot" aria-hidden="true">•</span>{{ track.year }}
                       </p>
-                    </article>
+                    </component>
                   </div>
                 </div>
               </div>
@@ -87,11 +103,46 @@ import coverSome from "../assets/somethingEp.webp";
 gsap.registerPlugin(ScrollTrigger);
 
 const tracks = [
-  { id: "bonny", title: "Bonny EP", label: "Moan", year: "2025", cover: coverBonny },
-  { id: "ilikeit", title: "I Like It EP", label: "Coppados", year: "2024", cover: coverIlike },
-  { id: "perc", title: "Percussive Series", label: "Criterio", year: "2025", cover: coverPerc },
-  { id: "show", title: "Show Me", label: "Deeperfect", year: "2025", cover: coverShow },
-  { id: "some", title: "Something EP", label: "Bamboleo", year: "2026", cover: coverSome },
+  {
+    id: "bonny",
+    title: "Bonny EP",
+    label: "Moan",
+    year: "2025",
+    cover: coverBonny,
+    spotifyUrl: "https://open.spotify.com/album/3OPciLP2bZnirWLYKzdwMU",
+  },
+  {
+    id: "ilikeit",
+    title: "I Like It EP",
+    label: "Coppados",
+    year: "2024",
+    cover: coverIlike,
+    spotifyUrl: "https://open.spotify.com/album/2dIx1ZqJVWdJg3KUWN62hB",
+  },
+  {
+    id: "perc",
+    title: "Percussive Series",
+    label: "Criterio",
+    year: "2025",
+    cover: coverPerc,
+    spotifyUrl: "",
+  },
+  {
+    id: "show",
+    title: "Show Me",
+    label: "Deeperfect",
+    year: "2025",
+    cover: coverShow,
+    spotifyUrl: "https://open.spotify.com/album/1MKVHSuHcSnqsjneyAGnEC",
+  },
+  {
+    id: "some",
+    title: "Something EP",
+    label: "Bamboleo",
+    year: "2026",
+    cover: coverSome,
+    spotifyUrl: "https://open.spotify.com/album/0WjQ7diJ4YGcYSP2SOIlwo",
+  },
 ];
 
 /** Varias copias seguidas para que cada tira sea más ancha que el viewport (sin huecos al loop). */
@@ -331,6 +382,25 @@ onUnmounted(() => {
 .track-card {
   flex: 0 0 auto;
   width: clamp(7.25rem, 12.5vw, 10.25rem);
+}
+
+.track-card--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.track-card--link:focus-visible {
+  outline: 2px solid #0a0a0a;
+  outline-offset: 3px;
+  border-radius: 0.35rem;
+}
+
+.track-card--link:hover .track-card__title,
+.track-card--link:focus-visible .track-card__title {
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
 }
 
 .track-card__cover {
