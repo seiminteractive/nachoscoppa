@@ -120,11 +120,11 @@ watch(
     const head = section.querySelector(".ig-feed__head");
     const marquee = section.querySelector(".ig-feed__marquee");
     if (head) {
-      const a = revealOnScroll(head, [head]);
+      const a = revealOnScroll(head, [head], { once: true });
       if (a) revealTimelines.push(a);
     }
     if (marquee) {
-      const b = revealOnScroll(marquee, [marquee]);
+      const b = revealOnScroll(marquee, [marquee], { once: true });
       if (b) revealTimelines.push(b);
     }
     ScrollTrigger.refresh();

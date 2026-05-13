@@ -13,21 +13,11 @@
             <span class="agenda__badge-icon" aria-hidden="true">
               <span class="agenda__badge-plus">+</span>
             </span>
-            <p class="agenda__badge-label">Próximas fechas</p>
+            <p class="agenda__badge-label">Tour dates</p>
           </div>
           <p ref="agendaMetaRef" class="agenda__meta" aria-hidden="true">(00)</p>
         </div>
         <h2 id="agenda-heading" class="agenda__title">Agenda.</h2>
-        <p class="agenda__lede">
-          <template v-if="isFull">
-            Todas las fechas confirmadas del tour y las presentaciones en vivo de Nacho Scoppa —
-            clubes, festivales y ciudades donde lleva su sonido a escenarios internacionales.
-          </template>
-          <template v-else>
-            Calendario de gira y shows en vivo: clubes, festivales y fechas donde Nacho presenta
-            su sonido alrededor del mundo.
-          </template>
-        </p>
       </header>
 
       <div
@@ -102,6 +92,7 @@ const selectedCountry = ref("");
 const sectionRef = ref(null);
 const agendaMetaRef = ref(null);
 let agendaScrollCtx;
+let agendaResizeObserver;
 
 const eventTotal = events.length;
 
@@ -129,6 +120,18 @@ onMounted(() => {
     const section = sectionRef.value;
     if (!section) return;
 
+    const grid = section.querySelector(".agenda__grid");
+    if (grid instanceof HTMLElement && typeof ResizeObserver !== "undefined") {
+      let debounceId = 0;
+      agendaResizeObserver = new ResizeObserver(() => {
+        window.clearTimeout(debounceId);
+        debounceId = window.setTimeout(() => {
+          ScrollTrigger.refresh();
+        }, 80);
+      });
+      agendaResizeObserver.observe(grid);
+    }
+
     agendaScrollCtx = gsap.context(() => {
       const head = section.querySelector(".agenda__head");
       const map = section.querySelector(".agenda__map");
@@ -150,6 +153,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  agendaResizeObserver?.disconnect();
+  agendaResizeObserver = null;
   agendaScrollCtx?.revert();
 });
 </script>

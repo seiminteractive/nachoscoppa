@@ -5,7 +5,7 @@
         <h2 id="site-footer-heading" class="site-footer__visually-hidden">Pie de página</h2>
         <div class="site-footer__intro-row">
           <p class="site-footer__lede">
-            House, groove y sets en vivo — de Rosario al mundo.
+            De Rosario al mundo.
           </p>
           <img
             class="site-footer__wordmark"

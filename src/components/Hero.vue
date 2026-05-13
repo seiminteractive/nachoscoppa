@@ -307,9 +307,9 @@ onUnmounted(() => {
   z-index: 0;
   pointer-events: none;
   background-color: #111;
-  background-image: url("../assets/imagenHero.jpg");
+  background-image: url("../assets/nachoHero.jpg");
   background-size: cover;
-  background-position: center 26%;
+  background-position: center center;
   background-repeat: no-repeat;
 }
 

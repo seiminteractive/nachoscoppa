@@ -10,10 +10,10 @@
           <header class="dj-notes__head">
             <div class="dj-notes__title-row">
               <h2 id="dj-notes-heading" class="dj-notes__mega">
-                <span class="dj-notes__mega-line">NOTAS</span>
-                <span class="dj-notes__mega-line dj-notes__mega-line--mid">DE</span>
+                <span class="dj-notes__mega-line">PRESS</span>
+                <span class="dj-notes__mega-line dj-notes__mega-line--mid">&</span>
                 <span class="dj-notes__mega-line">
-                  PRENSA<span class="dj-notes__mega-dot">.</span>
+                  FEATURES<span class="dj-notes__mega-dot">.</span>
                 </span>
               </h2>
               <p class="dj-notes__tag">(NOTAS)</p>
@@ -41,7 +41,7 @@
             </div>
             <div class="dj-notes__card-body">
               <span class="dj-notes__step" aria-hidden="true">
-                NOTA
+                Nota
                 <span class="dj-notes__step-num">{{ String(index + 1).padStart(2, "0") }}</span
                 ><span class="dj-notes__step-dot">.</span>
               </span>
@@ -77,9 +77,9 @@ const notes = [
   {
     id: "mixmag-it",
     title: "Mixmag Italia",
-    kicker: "Portada · digital magazine",
+    kicker: "Portada digital · Italia",
     description:
-      "Nacho Scoppa en la portada del digital magazine de Mixmag Italia: cobertura editorial y foco en su sonido y trayectoria.",
+      "Nacho Scoppa protagoniza la portada del digital magazine de Mixmag Italia: en una cobertura enfocada en su identidad sonora y proyección internacional.",
     url: "https://mixmagit.com/read/mixmagitalyade-con-nacho-scoppa-in-copertina-digital-magazine",
     image: notaMixmag,
     imageAlt: "Portada digital de Mixmag Italia con Nacho Scoppa",
@@ -87,9 +87,9 @@ const notes = [
   {
     id: "magnetic",
     title: "Magnetic Magazine",
-    kicker: "Entrevista · marzo 2026",
+    kicker: "Entrevista · Estados Unidos",
     description:
-      "Conversación sobre producción, clubes y la energía que busca en cada sesión, con mirada internacional.",
+      "Una conversación sobre producción, cultura club y la visión creativa detrás del universo musical de Nacho Scoppa.",
     url: "https://magneticmag.com/2026/03/nacho-scoppa-interview/",
     image: notaMagnetic,
     imageAlt: "Artículo de Magnetic Magazine sobre Nacho Scoppa",

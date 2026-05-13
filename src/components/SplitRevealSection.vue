@@ -285,7 +285,7 @@ onUnmounted(() => {
   will-change: transform;
 }
 
-.clients-projects__marquee:hover .clients-projects__marquee-track {
+.clients-projects__marquee-track:has(.track-card:hover) {
   animation-play-state: paused;
 }
 

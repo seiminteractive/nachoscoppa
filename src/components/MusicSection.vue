@@ -10,7 +10,7 @@
         </div>
 
         <h2 id="dj-info-headline" class="dj-info__headline">
-          Headliner: Con solo 25 años, Nacho Scoppa lleva su sonido desde Rosario a las pistas del
+          Con solo 25 años, Nacho Scoppa lleva su sonido desde Rosario a las pistas del
           mundo.
         </h2>
       </div>
@@ -20,7 +20,6 @@
           <div class="dj-info__photo">
             <span class="dj-info__photo-corner" aria-hidden="true">+</span>
             <img
-              ref="photoImgRef"
               class="dj-info__photo-img"
               :src="djPortrait"
               alt="Nacho Scoppa"
@@ -135,7 +134,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import djPortrait from "../assets/pressFoto.JPG";
+import djPortrait from "../assets/nachoVertical.jpg";
 import logoCriterio from "../assets/criterioLabelLogo.svg";
 import logoDeep from "../assets/deepperfectLabelLogo.png";
 import logoBamboleo from "../assets/bamboleoLabelLogo.png";
@@ -147,8 +146,6 @@ import { countUpOnScroll } from "../composables/countUpOnScroll";
 gsap.registerPlugin(ScrollTrigger);
 
 const sectionRef = ref(null);
-const photoImgRef = ref(null);
-
 /** Logos de sellos en `src/assets` (carrusel en la card “Respaldo en cabina”).*/
 const labelLogos = [
   { id: "criterio", name: "Criterio", src: logoCriterio },
@@ -211,30 +208,6 @@ onMounted(() => {
           to: 2,
           format: (v) => String(Math.round(v)).padStart(2, "0"),
         });
-      }
-
-      const photoImg = photoImgRef.value;
-      if (
-        photoImg &&
-        typeof window !== "undefined" &&
-        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ) {
-        /* Solo hacia arriba: yPercent positivo dejaba hueco gris arriba del recorte */
-        gsap.fromTo(
-          photoImg,
-          { yPercent: 0 },
-          {
-            yPercent: -18,
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 1.15,
-              invalidateOnRefresh: true,
-            },
-          }
-        );
       }
     }, section);
 
@@ -381,7 +354,8 @@ onUnmounted(() => {
   border-radius: clamp(1.25rem, 2.25vw, 1.75rem);
   overflow: hidden;
   background: #e5e5e5;
-  aspect-ratio: 3 / 4;
+  /* Más alto que 3/4: mejor encaje del retrato vertical completo */
+  aspect-ratio: 2 / 3;
 }
 
 .dj-info__photo-corner {
@@ -408,12 +382,10 @@ onUnmounted(() => {
   left: 0;
   top: 0;
   width: 100%;
-  /* Extra altura para que al mover yPercent hacia arriba no aparezca franja abajo */
-  height: 138%;
+  height: 100%;
   max-width: none;
   object-fit: cover;
-  object-position: center 22%;
-  will-change: transform;
+  object-position: center top;
 }
 
 /* 2×2: gap mínimo (~2px), bloque unificado como la ref. */
@@ -758,15 +730,10 @@ onUnmounted(() => {
   .dj-info__photo {
     flex: none;
     display: block;
-    aspect-ratio: 4 / 5;
-    max-height: 24.5rem;
+    aspect-ratio: 2 / 3;
+    max-height: 28rem;
     margin: 0 auto;
     max-width: min(100%, 22rem);
-  }
-
-  .dj-info__photo-img {
-    height: 132%;
-    object-position: center 24%;
   }
 
   .dj-info__cards {

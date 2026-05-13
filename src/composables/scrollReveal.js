@@ -37,6 +37,7 @@ export function revealOnScroll(trigger, targets, opts = {}) {
   const end = opts.end ?? "bottom top";
   const fastScrollEnd = opts.fastScrollEnd ?? false;
   const toggleActions = opts.toggleActions ?? REVEAL_TOGGLE_ACTIONS;
+  const once = opts.once ?? false;
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     gsap.set(list, { autoAlpha: 1, y: 0, clearProps: "willChange" });
@@ -51,7 +52,7 @@ export function revealOnScroll(trigger, targets, opts = {}) {
         trigger,
         start,
         end,
-        toggleActions,
+        ...(once ? { once: true } : { toggleActions }),
         invalidateOnRefresh: true,
         fastScrollEnd,
       },

@@ -92,31 +92,31 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
-import coverSomething from "../assets/somethingEp.webp";
+import coverSummertime from "../assets/summertimeEp.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const track = {
-  title: "Something EP",
-  label: "Under No Illusion",
+  title: "Summertime EP",
+  label: "Elrow Limited",
   year: "2026",
-  format: "EP · 12\"",
-  cover: coverSomething,
+  format: "EP · digital",
+  cover: coverSummertime,
   description:
-    "Dos tracks pensados para el momento pico de la noche: groove infeccioso, bombos profundos y percusiones que empujan la pista. Editado por Under No Illusion, el último paso de un año de laburo en estudio.",
+    "Nacho Scoppa vuelve a elrow Limited con un EP de dos originales: “Summertime” aporta el lado luminoso y el gancho melódico; “Turn It” refuerza el paso con un enfoque más directo para la pista. En conjunto suman poco más de siete minutos, pensados para programarse en secuencia o repartirse según el arco del set.",
   links: [
     {
       id: "spotify",
       label: "Escuchar en Spotify",
       icon: "simple-icons:spotify",
-      href: "https://open.spotify.com/artist/53c3s3SEmRB6OlD1fG7BqA?si=aHfzym1OQ0CNlnaWX5YpfQ",
+      href: "https://open.spotify.com/album/5xN03zaOEha6txKf3LtF9W",
       primary: true,
     },
     {
       id: "beatport",
       label: "Comprar en Beatport",
       icon: "simple-icons:beatport",
-      href: "https://www.beatport.com/es/artist/nacho-scoppa/827979",
+      href: "https://www.beatport.com/es/release/summertime/6816133",
       primary: false,
     },
   ],
