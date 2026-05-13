@@ -87,11 +87,11 @@ import coverSome from "../assets/somethingEp.webp";
 gsap.registerPlugin(ScrollTrigger);
 
 const tracks = [
-  { id: "bonny", title: "Bonny EP", label: "Criterio", year: "2025", cover: coverBonny },
-  { id: "ilikeit", title: "I Like It EP", label: "Hot Creations", year: "2024", cover: coverIlike },
-  { id: "perc", title: "Percussive Series", label: "Drumcode", year: "2025", cover: coverPerc },
-  { id: "show", title: "Show Me", label: "Elrow Music", year: "2025", cover: coverShow },
-  { id: "some", title: "Something EP", label: "Under No Illusion", year: "2026", cover: coverSome },
+  { id: "bonny", title: "Bonny EP", label: "Moan", year: "2025", cover: coverBonny },
+  { id: "ilikeit", title: "I Like It EP", label: "Coppados", year: "2024", cover: coverIlike },
+  { id: "perc", title: "Percussive Series", label: "Criterio", year: "2025", cover: coverPerc },
+  { id: "show", title: "Show Me", label: "Deeperfect", year: "2025", cover: coverShow },
+  { id: "some", title: "Something EP", label: "Bamboleo", year: "2026", cover: coverSome },
 ];
 
 /** Varias copias seguidas para que cada tira sea más ancha que el viewport (sin huecos al loop). */
