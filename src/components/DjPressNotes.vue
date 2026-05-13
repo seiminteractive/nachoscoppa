@@ -41,7 +41,7 @@
             </div>
             <div class="dj-notes__card-body">
               <span class="dj-notes__step" aria-hidden="true">
-                Nota
+                Card
                 <span class="dj-notes__step-num">{{ String(index + 1).padStart(2, "0") }}</span
                 ><span class="dj-notes__step-dot">.</span>
               </span>
