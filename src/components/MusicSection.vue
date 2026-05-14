@@ -141,6 +141,7 @@ import logoBamboleo from "../assets/bamboleoLabelLogo.png";
 import logoCoppados from "../assets/coppadosLabelLogo.webp";
 import logoMoan from "../assets/logoMoanLabel.png";
 import { revealOnScroll } from "../composables/scrollReveal";
+import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -170,9 +171,7 @@ onMounted(() => {
       /** Cada bloque con su propio ScrollTrigger: anima al entrar en vista, no con el borde del section. */
       const blocks = [
         section.querySelector(".dj-info__badge-row"),
-        section.querySelector("#dj-info-headline"),
         section.querySelector(".dj-info__photo-wrap"),
-        section.querySelector(".dj-info__intro"),
         ...section.querySelectorAll(".dj-info__presskit .dj-info__presskit-btn"),
         ...section.querySelectorAll(".dj-info__cards .dj-info__card"),
       ].filter((el) => el instanceof HTMLElement);
@@ -180,6 +179,11 @@ onMounted(() => {
       for (const el of blocks) {
         revealOnScroll(el, [el]);
       }
+
+      const headline = section.querySelector("#dj-info-headline");
+      const intro = section.querySelector(".dj-info__intro");
+      if (headline) revealTextOnScroll(headline, { trigger: headline, stagger: 0.035, duration: 1.1 });
+      if (intro) revealTextOnScroll(intro, { trigger: intro, yPercent: 105, rotateX: -30, blur: 4, stagger: 0.012, duration: 0.9 });
 
       const statCards = section.querySelectorAll(".dj-info__card--stat");
       const statVals = section.querySelectorAll(".dj-info__card--stat .dj-info__stat");

@@ -12,14 +12,12 @@
             <div class="hero__bottom">
               <div class="hero__bottom-grid">
                 <div class="hero__brand">
-                  <img
+                  <div
                     ref="megaLogoRef"
                     class="hero__mega-logo hero__mega-logo--light"
-                    :src="logoMark"
-                    alt=""
-                    width="900"
-                    height="240"
-                    decoding="async"
+                    :style="{ '--mega-logo-src': `url(${logoMark})` }"
+                    role="img"
+                    aria-label="Nacho Scoppa"
                   />
                 </div>
 
@@ -234,11 +232,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  /* Una sola viewport: evita +100vh de “aire” debajo por flex/min-height */
+  /* Una sola viewport: evita +100vh de “aire” debajo por flex/min-height.
+     --real-vh viene de App.vue (visualViewport.height); estable durante el scroll
+     y exacto en Safari, donde 100dvh queda corto y el carrusel se asoma. */
   height: 100vh;
   height: 100dvh;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: var(--real-vh, 100dvh);
+  max-height: var(--real-vh, 100dvh);
   padding-top: var(--header-total);
   /* Y visible: la franja bajo la card (fuera del flujo) puede extenderse y tapar el solapamiento */
   overflow-x: clip;
@@ -429,18 +429,26 @@ onUnmounted(() => {
 
 .hero__mega-logo {
   display: block;
-  width: auto;
+  width: 100%;
   max-width: min(100%, 96vw);
   height: clamp(6.5rem, 30vw, 24rem);
-  object-fit: contain;
-  object-position: center bottom;
   margin-inline: auto;
   opacity: 0;
+  /* Mask: el PNG (negro) actúa como máscara; el color sale del background, no de un filtro.
+     Así el logo es blanco desde el primer frame, sin depender del cálculo del filtro. */
+  -webkit-mask-image: var(--mega-logo-src);
+  mask-image: var(--mega-logo-src);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center bottom;
+  mask-position: center bottom;
+  -webkit-mask-size: contain;
+  mask-size: contain;
 }
 
 .hero__mega-logo--light {
-  filter: brightness(0) invert(1)
-    drop-shadow(0 10px 40px rgba(0, 0, 0, 0.42));
+  background: #fff;
+  filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.42));
 }
 
 .hero__thumb {
@@ -528,10 +536,10 @@ onUnmounted(() => {
   }
 }
 
-/* Logo por altura; no mezclar reglas con el móvil (ancho + height:auto) */
+/* Logo por altura (desktop). */
 @media (min-width: 769px) {
   .hero__mega-logo {
-    width: auto;
+    width: 100%;
     max-width: min(100%, 96vw);
     height: clamp(6.5rem, 30vw, 24rem);
   }
@@ -640,9 +648,8 @@ onUnmounted(() => {
     display: block;
     width: 100%;
     max-width: 100%;
-    height: auto;
-    object-fit: contain;
-    object-position: center bottom;
+    /* Alto explícito: la div+mask no tiene intrinsic size como un <img>. */
+    height: clamp(4rem, 22vw, 9rem);
     margin-inline: auto;
   }
 

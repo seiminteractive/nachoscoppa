@@ -100,6 +100,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import logoMark from "../assets/nombreNacho.png";
 import { socialLinks } from "../data/socialLinks.js";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
+import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -133,6 +134,9 @@ onMounted(() => {
     const root = footerRootRef.value;
     if (!root) return;
     footerScrollCtx = gsap.context(() => {
+      const lede = root.querySelector(".site-footer__lede");
+      if (lede) revealTextOnScroll(lede, { trigger: lede, stagger: 0.06, duration: 1.05 });
+
       const bottom = root.querySelector(".site-footer__bottom");
       const yEl = footerYearRef.value;
       if (bottom && yEl) {

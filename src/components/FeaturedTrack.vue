@@ -91,6 +91,7 @@ import { Icon } from "@iconify/vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
+import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
 import coverSummertime from "../assets/summertimeEp.jpg";
 
@@ -147,6 +148,11 @@ onMounted(() => {
       const targets = [head, cover, info].filter(Boolean);
 
       revealOnScroll(triggerEl, targets);
+
+      const title = section.querySelector(".featured__title");
+      const desc = section.querySelector(".featured__desc");
+      if (title) revealTextOnScroll(title, { trigger: title, stagger: 0.06 });
+      if (desc) revealTextOnScroll(desc, { trigger: desc, yPercent: 105, rotateX: -35, blur: 4, stagger: 0.015, duration: 0.95 });
 
       const metaEl = featuredMetaRef.value;
       if (head && metaEl) {

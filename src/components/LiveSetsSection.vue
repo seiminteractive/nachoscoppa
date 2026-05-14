@@ -17,7 +17,7 @@
           </div>
 
           <h2 id="live-sets-heading" class="live-sets__title">
-            SETS EN VIVO.<span ref="liveSetsCountRef" class="live-sets__title-count">(0)</span>
+            SETS EN VIVO.<span ref="liveSetsCountRef" class="live-sets__title-count" data-reveal-skip="1">(0)</span>
           </h2>
 
           <ul class="live-sets__list" role="list">

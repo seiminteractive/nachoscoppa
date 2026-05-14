@@ -65,6 +65,7 @@ import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
+import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
 
 import notaMixmag from "../assets/notaMixmag.png";
@@ -105,8 +106,6 @@ const layoutScrolljack = ref(false);
 
 let ctx;
 
-let mm;
-
 function setupHorizontalScroll() {
   const pin = pinRef.value;
   const viewport = viewportRef.value;
@@ -122,40 +121,29 @@ function setupHorizontalScroll() {
     return;
   }
 
-  mm = gsap.matchMedia();
+  const scrollAmount = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
 
-  /* Solo desktop/tablet: el scrolljack pinneado con scrub es poco fluido en touch (el URL bar de mobile dispara refreshes constantes). En mobile usamos scroll-snap nativo. */
-  mm.add("(min-width: 721px)", () => {
-    const scrollAmount = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
+  gsap.set(track, { x: 0 });
 
-    gsap.set(track, { x: 0 });
+  if (scrollAmount() < 16) return;
 
-    if (scrollAmount() < 16) return;
+  layoutScrolljack.value = true;
 
-    layoutScrolljack.value = true;
-
-    const tween = gsap.to(track, {
-      x: () => -scrollAmount(),
-      ease: "none",
-      scrollTrigger: {
-        trigger: pin,
-        start: "top top",
-        end: () => `+=${scrollAmount()}`,
-        pin: true,
-        pinSpacing: true,
-        /* scrub liviano: 1.2 generaba lag al despinear (sensación de "salto"). */
-        scrub: 0.4,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      },
-    });
-
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-      layoutScrolljack.value = false;
-      gsap.set(track, { clearProps: "transform" });
-    };
+  gsap.to(track, {
+    x: () => -scrollAmount(),
+    ease: "none",
+    scrollTrigger: {
+      trigger: pin,
+      start: "top top",
+      end: () => `+=${scrollAmount()}`,
+      pin: true,
+      pinSpacing: true,
+      /* scrub: true (1:1 con scroll) → sin lag al despinear → sin salto al final.
+         scrub: 1.2 (original) interpolaba después de que el pin terminaba. */
+      scrub: true,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+    },
   });
 }
 
@@ -166,9 +154,13 @@ onMounted(() => {
       setupHorizontalScroll();
       const wrap = djNotesRootRef.value;
       if (wrap) {
-        const head = wrap.querySelector(".dj-notes__head");
-        if (head) revealOnScroll(head, [head]);
+        const mega = wrap.querySelector(".dj-notes__mega");
+        const tag = wrap.querySelector(".dj-notes__tag");
+        if (mega) revealTextOnScroll(mega, { trigger: mega, stagger: 0.08 });
+        if (tag) revealOnScroll(tag, [tag]);
         wrap.querySelectorAll(".dj-notes__card").forEach((card, i) => {
+          const title = card.querySelector(".dj-notes__card-title");
+          if (title) revealTextOnScroll(title, { trigger: card, yPercent: 110, stagger: 0.05 });
           const num = card.querySelector(".dj-notes__step-num");
           if (!num) return;
           countUpOnScroll(card, num, {
@@ -184,7 +176,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  mm?.revert();
   ctx?.revert();
 });
 </script>
@@ -208,8 +199,10 @@ onUnmounted(() => {
 
 .dj-notes__scene--scrolljack {
   box-sizing: border-box;
-  /* vh (no dvh): en mobile dvh cambia con la URL bar y dispara refreshes que hacen temblar el pin. */
+  /* --real-vh viene de App.vue (visualViewport.height): estable durante el scroll.
+     100dvh fluctúa con la URL bar de mobile → dispara ScrollTrigger refresh → temblor. */
   min-height: 100vh;
+  min-height: var(--real-vh, 100dvh);
   /* Centra el carrusel en el viewport del pin; el viewport NO debe estirarse a toda la altura o el track queda pegado arriba. */
   align-items: center;
   justify-content: flex-start;
@@ -440,7 +433,6 @@ onUnmounted(() => {
 @media (max-width: 720px) {
   .dj-notes__head {
     padding-right: clamp(0.65rem, 3vw, 1.25rem);
-    padding-bottom: clamp(1rem, 4vw, 1.5rem);
   }
 
   /* Eyebrow arriba del mega (en desktop va al costado y compite por ancho). */
@@ -464,39 +456,9 @@ onUnmounted(() => {
     font-size: clamp(1.75rem, 10.5vw, 2.75rem);
   }
 
-  /* Mobile: layout en columna. Header arriba y carrusel horizontal native con scroll-snap debajo. */
-  .dj-notes__scene {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .dj-notes__viewport {
-    /* Block (no flex): si fuera flex, el track sería un flex item con shrink y nunca desbordaría. */
-    display: block;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    touch-action: pan-x pan-y;
-    overscroll-behavior-x: contain;
-  }
-
-  .dj-notes__viewport::-webkit-scrollbar {
-    display: none;
-  }
-
-  .dj-notes__track {
-    will-change: auto;
-    /* width auto + nowrap: el track toma el ancho natural de sus children y desborda el viewport */
-    width: max-content;
-  }
-
   .dj-notes__card {
     flex-direction: column;
     width: clamp(17.5rem, 86vw, 26rem);
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
   }
 
   .dj-notes__card-media {
