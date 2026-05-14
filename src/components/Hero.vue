@@ -188,20 +188,22 @@ onMounted(() => {
       );
 
       const mega = megaLogoRef.value;
-      if (mega && !prefersReducedMotion()) {
-        gsap.fromTo(
-          mega,
-          { y: 36 },
-          {
+      if (mega) {
+        if (prefersReducedMotion()) {
+          gsap.set(mega, { opacity: 1, y: 0 });
+        } else {
+          gsap.set(mega, { opacity: 0, y: 64 });
+          gsap.to(mega, {
+            opacity: 1,
             y: 0,
-            duration: 1.85,
-            ease: "power3.out",
-            delay: 0.48,
+            duration: 1.9,
+            ease: "expo.out",
+            delay: 0.55,
             onComplete: () => {
               gsap.set(mega, { clearProps: "transform" });
             },
-          }
-        );
+          });
+        }
       }
     }, heroRootRef);
 
@@ -235,8 +237,8 @@ onUnmounted(() => {
   /* Una sola viewport: evita +100vh de “aire” debajo por flex/min-height */
   height: 100vh;
   height: 100dvh;
-  max-height: 100vh;
-  max-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   padding-top: var(--header-total);
   /* Y visible: la franja bajo la card (fuera del flujo) puede extenderse y tapar el solapamiento */
   overflow-x: clip;
@@ -433,6 +435,7 @@ onUnmounted(() => {
   object-fit: contain;
   object-position: center bottom;
   margin-inline: auto;
+  opacity: 0;
 }
 
 .hero__mega-logo--light {

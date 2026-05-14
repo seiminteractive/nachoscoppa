@@ -1,0 +1,7 @@
+services:
+  nachoscoppa-frontend:
+    image: your-dockerhub-user/nachoscoppa-frontend:latest
+    container_name: nachoscoppa-frontend
+    restart: unless-stopped
+    ports:
+      - "8081:80"

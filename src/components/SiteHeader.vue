@@ -94,7 +94,7 @@ function prefersReducedMotion() {
 
 function runHeaderIntro() {
   const root = headerIntroRoot.value;
-  if (!root || prefersReducedMotion()) return;
+  if (!root) return;
 
   introCtx?.revert();
   introCtx = gsap.context(() => {
@@ -107,30 +107,39 @@ function runHeaderIntro() {
     const isMobileNav =
       typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
 
-    const leadEls = [logo].filter(Boolean);
-    if (isMobileNav && burger) leadEls.push(burger);
+    const allEls = [logo, burger, cta, menuKicker, ...links].filter(Boolean);
+
+    if (prefersReducedMotion()) {
+      gsap.set(allEls, { opacity: 1, y: 0 });
+      return;
+    }
 
     const clearIntro = () => {
-      const toClear = [logo, burger, cta, menuKicker, ...links].filter(Boolean);
-      gsap.set(toClear, { clearProps: "opacity,transform" });
+      gsap.set(allEls, { clearProps: "transform" });
     };
 
     if (isMobileNav) {
-      const D = 1.45;
+      const leadEls = [logo, burger].filter(Boolean);
+      const D = 1.6;
       const ease = "power3.out";
       const tl = gsap.timeline({ defaults: { ease }, onComplete: clearIntro });
-      tl.from(leadEls, { opacity: 0, y: -18, duration: D }, 0);
-      tl.from(links, { opacity: 0, y: 16, duration: D * 0.95, stagger: 0.12 }, 0.22);
-      if (menuKicker) tl.from(menuKicker, { opacity: 0, y: 12, duration: D * 0.85 }, 0.18);
-      if (cta) tl.from(cta, { opacity: 0, y: 14, duration: D * 0.95 }, 0.34);
+      tl.fromTo(leadEls, { opacity: 0, y: -22 }, { opacity: 1, y: 0, duration: D }, 0);
+      if (menuKicker) tl.fromTo(menuKicker, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: D }, 0.2);
+      tl.fromTo(links, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: D, stagger: 0.09 }, 0.25);
+      if (cta) tl.fromTo(cta, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: D }, 0.38);
     } else {
-      /** Desktop: más corto y poco stagger para que la barra no “cuelgue” ni llegue tarde. */
-      const D = 0.48;
-      const ease = "power2.out";
+      /** Desktop: entrada bien suave, sin “cortes”. */
+      const D = 1.7;
+      const ease = "power3.out";
       const tl = gsap.timeline({ defaults: { ease }, onComplete: clearIntro });
-      tl.from(logo, { opacity: 0, y: -8, duration: D }, 0);
-      tl.from(links, { opacity: 0, y: 6, duration: D * 0.92, stagger: 0.028 }, 0.04);
-      if (cta) tl.from(cta, { opacity: 0, y: 5, duration: D * 0.88 }, 0.07);
+      tl.fromTo(logo, { opacity: 0, y: -22 }, { opacity: 1, y: 0, duration: D }, 0);
+      tl.fromTo(
+        links,
+        { opacity: 0, y: -18 },
+        { opacity: 1, y: 0, duration: D, stagger: 0.09 },
+        0.15
+      );
+      if (cta) tl.fromTo(cta, { opacity: 0, y: -18 }, { opacity: 1, y: 0, duration: D }, 0.3);
     }
   }, root);
 }
@@ -263,6 +272,7 @@ onUnmounted(() => {
   flex-shrink: 0;
   line-height: 0;
   text-decoration: none;
+  opacity: 0;
 }
 
 .hero__logo-img {
@@ -297,6 +307,7 @@ onUnmounted(() => {
   transition: opacity 0.2s ease;
   white-space: nowrap;
   flex-shrink: 0;
+  opacity: 0;
 }
 
 .hero__link:hover {
@@ -323,6 +334,7 @@ onUnmounted(() => {
   white-space: nowrap;
   flex-shrink: 0;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  opacity: 0;
 }
 
 .hero__cta:hover {

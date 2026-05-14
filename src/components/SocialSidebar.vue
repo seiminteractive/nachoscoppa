@@ -1,5 +1,5 @@
 <template>
-  <aside class="social-sidebar" aria-label="Redes sociales de Nacho Scoppa">
+  <aside ref="sidebarRef" class="social-sidebar" aria-label="Redes sociales de Nacho Scoppa">
     <ul class="social-sidebar__list">
       <li v-for="link in links" :key="link.name" class="social-sidebar__item">
         <a
@@ -18,8 +18,54 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { Icon } from "@iconify/vue";
+import { gsap } from "gsap";
 import { socialLinks as links } from "../data/socialLinks.js";
+
+const sidebarRef = ref(null);
+let introCtx;
+
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+onMounted(() => {
+  nextTick(() => {
+    const root = sidebarRef.value;
+    if (!root) return;
+    const items = root.querySelectorAll(".social-sidebar__item");
+    if (!items.length) return;
+
+    if (prefersReducedMotion()) {
+      gsap.set(items, { opacity: 1, x: 0 });
+      return;
+    }
+
+    introCtx = gsap.context(() => {
+      gsap.fromTo(
+        items,
+        { opacity: 0, x: 28 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 1.6,
+          ease: "power3.out",
+          stagger: 0.09,
+          delay: 0.45,
+          onComplete: () => {
+            gsap.set(items, { clearProps: "transform" });
+          },
+        }
+      );
+    }, root);
+  });
+});
+
+onUnmounted(() => {
+  introCtx?.revert();
+  introCtx = null;
+});
 </script>
 
 <style scoped>
@@ -45,6 +91,7 @@ import { socialLinks as links } from "../data/socialLinks.js";
 
 .social-sidebar__item {
   display: block;
+  opacity: 0;
 }
 
 .social-sidebar__link {
