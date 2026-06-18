@@ -81,7 +81,7 @@
 import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { RouterLink } from "vue-router";
 import { gsap } from "gsap";
-import logoMark from "../assets/nombreNacho.png";
+import logoMark from "../assets/nombreNacho.webp";
 
 const navOpen = ref(false);
 const headerIntroRoot = ref(null);

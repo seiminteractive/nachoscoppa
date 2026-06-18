@@ -93,70 +93,27 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
-
-import coverBonny from "../assets/bonnyEp.webp";
-import coverIlike from "../assets/ilikeitEp.webp";
-import coverPerc from "../assets/percussiveSeries.webp";
-import coverShow from "../assets/showme.webp";
-import coverSome from "../assets/somethingEp.webp";
+import { useTracks, useSiteStats } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const tracks = [
-  {
-    id: "bonny",
-    title: "Bonny EP",
-    label: "Moan",
-    year: "2025",
-    cover: coverBonny,
-    spotifyUrl: "https://open.spotify.com/album/3OPciLP2bZnirWLYKzdwMU",
-  },
-  {
-    id: "ilikeit",
-    title: "I Like It EP",
-    label: "Coppados",
-    year: "2024",
-    cover: coverIlike,
-    spotifyUrl: "https://open.spotify.com/album/2dIx1ZqJVWdJg3KUWN62hB",
-  },
-  {
-    id: "perc",
-    title: "Percussive Series",
-    label: "Criterio",
-    year: "2025",
-    cover: coverPerc,
-    spotifyUrl: "",
-  },
-  {
-    id: "show",
-    title: "Show Me",
-    label: "Deeperfect",
-    year: "2025",
-    cover: coverShow,
-    spotifyUrl: "https://open.spotify.com/album/1MKVHSuHcSnqsjneyAGnEC",
-  },
-  {
-    id: "some",
-    title: "Something EP",
-    label: "Bamboleo",
-    year: "2026",
-    cover: coverSome,
-    spotifyUrl: "https://open.spotify.com/album/0WjQ7diJ4YGcYSP2SOIlwo",
-  },
-];
+const { items: tracks } = useTracks();
+const { data: siteStats } = useSiteStats();
 
-/** Varias copias seguidas para que cada tira sea más ancha que el viewport (sin huecos al loop). */
 const TRACK_STRIP_COPIES = 4;
 
 const tracksStrip = computed(() => {
   const out = [];
   for (let c = 0; c < TRACK_STRIP_COPIES; c += 1) {
-    for (const t of tracks) {
+    for (const t of tracks.value) {
       out.push({ ...t, uid: `${t.id}-${c}` });
     }
   }
   return out;
 });
+
+const tracksCountTo = computed(() => siteStats.value?.tracksCount ?? tracks.value.length ?? 0);
+const sinceYearFrom = computed(() => siteStats.value?.sinceYear ?? 2014);
 
 const marqueePasses = [1, 2];
 
@@ -214,14 +171,15 @@ onMounted(() => {
         splitYearRef.value || bottom?.querySelector(".clients-projects__year span") || null;
       if (bottom && countEl) {
         countUpOnScroll(bottom, countEl, {
-          to: 26,
+          to: tracksCountTo.value || 1,
           format: (v) => `(${Math.round(v)})`,
         });
       }
       if (bottom && yearEl) {
+        const toYear = new Date().getFullYear();
         countUpOnScroll(bottom, yearEl, {
-          from: 2014,
-          to: 2026,
+          from: sinceYearFrom.value,
+          to: toYear,
           format: (v) => String(Math.round(v)),
         });
       }

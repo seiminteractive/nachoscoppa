@@ -21,6 +21,7 @@
     >
       <g :transform="cameraTransform">
         <g
+          ref="countriesRef"
           class="world-map__countries"
           :data-selected="selectedCountry || ''"
           v-html="countriesMarkup"
@@ -113,7 +114,7 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onUnmounted, reactive, ref, watch } from "vue";
 import worldSvgRaw from "../../assets/world.svg?raw";
 import { MAP_VIEWBOX, project } from "./projection.js";
 
@@ -143,6 +144,7 @@ const props = defineProps({
 const emit = defineEmits(["select", "clear"]);
 
 const svgRef = ref(null);
+const countriesRef = ref(null);
 const panX = ref(0);
 const panY = ref(0);
 const zoom = ref(1);
@@ -324,6 +326,24 @@ const pins = computed(() => {
   }
   return Array.from(seen.values());
 });
+
+/** Resalta el país seleccionado pintando su path, sea cual sea su código. */
+watch(
+  () => props.selectedCountry,
+  (code) => {
+    nextTick(() => {
+      const root = countriesRef.value;
+      if (!root) return;
+      root
+        .querySelectorAll("path.is-selected")
+        .forEach((p) => p.classList.remove("is-selected"));
+      if (!code) return;
+      const el = root.querySelector(`path#${(window.CSS?.escape ?? ((s) => s))(code)}`);
+      if (el) el.classList.add("is-selected");
+    });
+  },
+  { immediate: true },
+);
 
 /** Códigos ISO (id del path en world.svg) que tienen al menos un evento. */
 const agendaCountryCodes = computed(() => {
@@ -638,16 +658,7 @@ function selectCountry(code, e) {
   opacity: 0.55;
 }
 
-.world-map__countries[data-selected="AR"] :deep(path#AR),
-.world-map__countries[data-selected="BR"] :deep(path#BR),
-.world-map__countries[data-selected="CL"] :deep(path#CL),
-.world-map__countries[data-selected="CR"] :deep(path#CR),
-.world-map__countries[data-selected="DE"] :deep(path#DE),
-.world-map__countries[data-selected="ES"] :deep(path#ES),
-.world-map__countries[data-selected="GB"] :deep(path#GB),
-.world-map__countries[data-selected="IT"] :deep(path#IT),
-.world-map__countries[data-selected="PY"] :deep(path#PY),
-.world-map__countries[data-selected="US"] :deep(path#US) {
+.world-map__countries :deep(path.is-selected) {
   fill: #0a0a0a;
   opacity: 1;
 }

@@ -58,20 +58,22 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, watch, onUnmounted, nextTick } from "vue";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
-
-const JSON_URL = "/data/instagram-posts.json";
+import { useInstagramPosts, useInstagramMeta } from "../composables/content";
 
 /** Copias por post dentro de cada mitad de la pista (ancho >> viewport). */
 const POST_STRIP_COPIES = 4;
 const marqueePasses = [1, 2];
 
 const sectionRef = ref(null);
-const posts = ref([]);
-const instagramUsername = ref("nachoscoppa");
-const profileUrl = ref("https://www.instagram.com/nachoscoppa/");
+const { items: posts } = useInstagramPosts();
+const { data: igMeta } = useInstagramMeta();
+const instagramUsername = computed(() => igMeta.value?.username || "nachoscoppa");
+const profileUrl = computed(
+  () => igMeta.value?.profileUrl || `https://www.instagram.com/${instagramUsername.value}/`,
+);
 
 const strip = computed(() => {
   const p = posts.value;
@@ -90,20 +92,6 @@ const strip = computed(() => {
 
 /** Reveals independientes (head + carrusel). */
 let revealTimelines = [];
-
-onMounted(() => {
-  fetch(JSON_URL)
-    .then((r) => (r.ok ? r.json() : null))
-    .then((data) => {
-      if (data?.username) instagramUsername.value = data.username;
-      if (data?.profileUrl) profileUrl.value = data.profileUrl;
-      const list = data?.posts;
-      if (Array.isArray(list) && list.length > 0) {
-        posts.value = list.filter((p) => p.image && p.url);
-      }
-    })
-    .catch(() => {});
-});
 
 watch(
   () => posts.value.length,

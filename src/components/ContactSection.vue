@@ -127,7 +127,7 @@
 
 <script setup>
 import { reactive } from "vue";
-import heroImg from "../assets/imagenHero.jpg";
+import heroImg from "../assets/imagenHero.webp";
 
 /** Fondo difuminado (misma imagen que hero, estética referencia). */
 const contactBgImage = `url(${heroImg})`;

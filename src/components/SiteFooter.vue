@@ -40,28 +40,6 @@
           </div>
         </div>
 
-        <div class="site-footer__block">
-          <p class="site-footer__label">Press kit</p>
-          <div class="site-footer__press-links">
-            <a
-              class="site-footer__text-link"
-              :href="presskitEsUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Español (PDF)
-            </a>
-            <a
-              class="site-footer__text-link"
-              :href="presskitEnUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              English (PDF)
-            </a>
-          </div>
-        </div>
-
         <div class="site-footer__block site-footer__block--social">
           <p class="site-footer__label">Redes</p>
           <ul class="site-footer__social" aria-label="Redes sociales">
@@ -86,6 +64,47 @@
         <p class="site-footer__legal">
           © <span ref="footerYearRef">{{ footerYearFrom }}</span> Nacho Scoppa. Todos los derechos reservados.
         </p>
+
+        <div class="site-footer__credits" aria-label="Desarrollado por">
+          <span class="site-footer__credits-label">Desarrollado por</span>
+          <div class="site-footer__credits-logos">
+            <a
+              class="site-footer__credits-link site-footer__credits-link--seim"
+              href="https://web.seiminteractive.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Seim Interactive"
+            >
+              <img
+                class="site-footer__credits-logo site-footer__credits-logo--seim"
+                :src="logoSeim"
+                alt=""
+                width="320"
+                height="96"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <a
+              class="site-footer__credits-link site-footer__credits-link--byloa"
+              href="https://byloa.agency/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="byloa"
+            >
+              <img
+                class="site-footer__credits-logo site-footer__credits-logo--byloa"
+                :src="logoByloa"
+                alt=""
+                width="80"
+                height="28"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+          </div>
+        </div>
+
         <p class="site-footer__meta">Rosario · Argentina</p>
       </div>
     </div>
@@ -97,7 +116,9 @@ import { computed, ref, onMounted, onUnmounted, nextTick } from "vue";
 import { Icon } from "@iconify/vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import logoMark from "../assets/nombreNacho.png";
+import logoMark from "../assets/nombreNacho.webp";
+import logoSeim from "../assets/logoSeim.png";
+import logoByloa from "../assets/logobyloa.png";
 import { socialLinks } from "../data/socialLinks.js";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
 import { revealTextOnScroll } from "../composables/revealTextOnScroll";
@@ -111,8 +132,6 @@ defineProps({
 
 const bookingEmail = "aldo@conceptoneagency.com";
 const pressEmail = "eugeniacoppados@gmail.com";
-const presskitEsUrl = "/presskit/nacho-scoppa-es.pdf";
-const presskitEnUrl = "/presskit/nacho-scoppa-en.pdf";
 
 const year = new Date().getFullYear();
 const footerYearFrom = Math.max(year - 14, 2000);
@@ -236,7 +255,7 @@ onUnmounted(() => {
 
 @media (min-width: 960px) {
   .site-footer__main {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.15fr) minmax(0, 1fr);
     align-items: start;
     gap: clamp(1.5rem, 3vw, 2.75rem);
   }
@@ -305,26 +324,6 @@ onUnmounted(() => {
   opacity: 0.75;
 }
 
-.site-footer__press-links {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.45rem;
-}
-
-.site-footer__text-link {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #f5f5f5;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-.site-footer__text-link:hover {
-  opacity: 0.65;
-}
-
 .site-footer__block--social .site-footer__label {
   margin-bottom: 0.65rem;
 }
@@ -383,9 +382,9 @@ onUnmounted(() => {
 .site-footer__bottom {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.65rem 1.75rem;
+  gap: 0.65rem 1.25rem;
 }
 
 .site-footer__legal {
@@ -406,15 +405,93 @@ onUnmounted(() => {
   color: rgba(245, 245, 245, 0.45);
 }
 
-.site-footer__nav-link:focus-visible,
-.site-footer__mailto:focus-visible,
-.site-footer__text-link:focus-visible,
-.site-footer__social-link:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.45);
-  outline-offset: 3px;
+.site-footer__credits {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
 }
 
-/* Una columna (<640px): todo centrado; press kit en fila */
+.site-footer__credits-logos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: clamp(3.5rem, 7.2vw, 4.5rem);
+}
+
+.site-footer__credits-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 245, 0.38);
+  white-space: nowrap;
+}
+
+.site-footer__credits-label::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 0.65rem;
+  margin-left: 0.55rem;
+  vertical-align: middle;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.site-footer__credits-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-decoration: none;
+  line-height: 0;
+  opacity: 0.72;
+  transition: opacity 0.2s ease;
+}
+
+.site-footer__credits-link:hover,
+.site-footer__credits-link:focus-visible {
+  opacity: 1;
+}
+
+.site-footer__credits-logo {
+  display: block;
+  width: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+.site-footer__credits-logo--seim {
+  height: clamp(3.5rem, 7.2vw, 4.5rem);
+  max-width: 19rem;
+  filter: brightness(0) invert(1);
+}
+
+.site-footer__credits-logo--byloa {
+  height: clamp(1.75rem, 3.2vw, 2.15rem);
+  max-width: 5.5rem;
+  filter: brightness(0) invert(1);
+  transform: translateY(-0.3rem);
+}
+
+.site-footer__credits-link--byloa:hover .site-footer__credits-logo--byloa,
+.site-footer__credits-link--byloa:focus-visible .site-footer__credits-logo--byloa {
+  transform: translateY(-0.2rem);
+}
+
+.site-footer__nav-link:focus-visible,
+.site-footer__mailto:focus-visible,
+.site-footer__social-link:focus-visible,
+.site-footer__credits-link:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.45);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Una columna (<640px): todo centrado */
 @media (max-width: 639px) {
   .site-footer__intro {
     margin-bottom: clamp(1.35rem, 3.5vw, 1.85rem);
@@ -465,14 +542,6 @@ onUnmounted(() => {
     text-align: center;
   }
 
-  .site-footer__press-links {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem 1.1rem;
-  }
-
   .site-footer__social {
     justify-content: center;
   }
@@ -481,6 +550,15 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 0.85rem;
+  }
+
+  .site-footer__credits {
+    justify-content: center;
+  }
+
+  .site-footer__credits-logos {
+    justify-content: center;
   }
 }
 </style>
