@@ -17,7 +17,7 @@
           </div>
           <p ref="agendaMetaRef" class="agenda__meta" aria-hidden="true">(00)</p>
         </div>
-        <h2 id="agenda-heading" class="agenda__title">Agenda.</h2>
+        <h2 id="agenda-heading" class="agenda__title">Shows.</h2>
       </header>
 
       <div

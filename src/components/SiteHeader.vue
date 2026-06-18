@@ -51,7 +51,7 @@
           </a>
           <RouterLink to="/agenda" class="hero__link" @click="navOpen = false">
             <span class="hero__menu-index" aria-hidden="true">05</span>
-            <span class="hero__menu-text">Agenda</span>
+            <span class="hero__menu-text">Shows</span>
           </RouterLink>
           <a
             href="https://coppados.com/"
