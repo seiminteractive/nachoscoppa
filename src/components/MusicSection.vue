@@ -40,25 +40,6 @@
             </p>
           </div>
 
-          <div class="dj-info__presskit" role="group" aria-label="Press kit">
-            <a
-              class="dj-info__presskit-btn"
-              :href="presskitEsUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Press kit (ES)
-            </a>
-            <a
-              class="dj-info__presskit-btn dj-info__presskit-btn--ghost"
-              :href="presskitEnUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Press kit (EN)
-            </a>
-          </div>
-
           <div class="dj-info__cards" aria-label="Datos destacados">
             <article class="dj-info__card dj-info__card--stat">
               <span class="dj-info__card-index">01</span>
@@ -70,7 +51,7 @@
             <article class="dj-info__card dj-info__card--stat">
               <span class="dj-info__card-index">02</span>
               <div class="dj-info__stat-block">
-                <p class="dj-info__stat">+60K</p>
+                <p class="dj-info__stat">+74K</p>
                 <p class="dj-info__stat-label">oyentes mensuales</p>
               </div>
             </article>
@@ -131,34 +112,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import djPortrait from "../assets/nachoVertical.jpg";
-import logoCriterio from "../assets/criterioLabelLogo.svg";
-import logoDeep from "../assets/deepperfectLabelLogo.png";
-import logoBamboleo from "../assets/bamboleoLabelLogo.png";
-import logoCoppados from "../assets/coppadosLabelLogo.webp";
-import logoMoan from "../assets/logoMoanLabel.png";
+import djPortrait from "../assets/nachoVertical.webp";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
+import { useLabels, useSiteStats } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const sectionRef = ref(null);
-/** Logos de sellos en `src/assets` (carrusel en la card “Respaldo en cabina”).*/
-const labelLogos = [
-  { id: "criterio", name: "Criterio", src: logoCriterio },
-  { id: "deep", name: "Deeperfect", src: logoDeep },
-  { id: "bamboleo", name: "Bamboleo", src: logoBamboleo },
-  { id: "coppados", name: "Coppados", src: logoCoppados },
-  { id: "moan", name: "Moan", src: logoMoan },
-];
+const { items: labelLogos } = useLabels();
+const { data: siteStats } = useSiteStats();
 
-/** PDF u hojas estáticas en `public/presskit/` (Vite las sirve en la raíz). */
-const presskitEsUrl = "/presskit/nacho-scoppa-es.pdf";
-const presskitEnUrl = "/presskit/nacho-scoppa-en.pdf";
+const countriesTo = computed(() => siteStats.value?.countries ?? 27);
+const monthlyListenersTo = computed(() => siteStats.value?.monthlyListeners ?? 74);
 
 let ctx;
 
@@ -172,7 +142,6 @@ onMounted(() => {
       const blocks = [
         section.querySelector(".dj-info__badge-row"),
         section.querySelector(".dj-info__photo-wrap"),
-        ...section.querySelectorAll(".dj-info__presskit .dj-info__presskit-btn"),
         ...section.querySelectorAll(".dj-info__cards .dj-info__card"),
       ].filter((el) => el instanceof HTMLElement);
 
@@ -189,13 +158,13 @@ onMounted(() => {
       const statVals = section.querySelectorAll(".dj-info__card--stat .dj-info__stat");
       if (statCards[0] && statVals[0]) {
         countUpOnScroll(statCards[0], statVals[0], {
-          to: 27,
+          to: countriesTo.value,
           format: (v) => `+${Math.round(v)}`,
         });
       }
       if (statCards[1] && statVals[1]) {
         countUpOnScroll(statCards[1], statVals[1], {
-          to: 60,
+          to: monthlyListenersTo.value,
           format: (v) => `+${Math.round(v)}K`,
         });
       }
@@ -602,56 +571,6 @@ onUnmounted(() => {
   text-align: left;
 }
 
-/* Pills alineados al estilo del hero (Contacto / Inicio), compactos */
-.dj-info__presskit {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.45rem;
-  width: 100%;
-  margin-bottom: clamp(1.15rem, 2.75vw, 1.85rem);
-}
-
-.dj-info__presskit-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.34rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid var(--dj-black);
-  background: var(--dj-black);
-  color: #fff;
-  font-family: inherit;
-  font-size: clamp(0.75rem, 0.95vw, 0.8125rem);
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
-}
-
-.dj-info__presskit-btn:hover {
-  opacity: 0.88;
-}
-
-.dj-info__presskit-btn:focus-visible {
-  outline: 2px solid var(--dj-black);
-  outline-offset: 2px;
-}
-
-.dj-info__presskit-btn--ghost {
-  background: var(--dj-card);
-  color: var(--dj-black);
-  border-color: rgba(0, 0, 0, 0.18);
-}
-
-.dj-info__presskit-btn--ghost:hover {
-  opacity: 1;
-  background: #fff;
-}
-
 /* Desktop: intro alineado a la derecha, más aire antes de las cards */
 @media (min-width: 901px) {
   .dj-info__intro {
@@ -711,10 +630,6 @@ onUnmounted(() => {
   .dj-info__intro-p {
     text-align: left;
     max-width: min(32rem, 100%);
-  }
-
-  .dj-info__presskit {
-    justify-content: flex-start;
   }
 
   .dj-info__aside {

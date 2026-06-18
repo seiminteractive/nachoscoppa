@@ -4,3 +4,5 @@ dist
 *.local
 .env
 .env.*
+serviceAccount.json
+functions/node_modules

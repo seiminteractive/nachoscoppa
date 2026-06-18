@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in [
+          // Allowlist: actualizar acá los emails admin.
+          'admin@nachoscoppa.com'
+        ];
+    }
+
+    // Contenido público: lectura libre, escritura solo admin.
+    match /tracks/{id}        { allow read; allow write: if isAdmin(); }
+    match /featuredTrack/{id} { allow read; allow write: if isAdmin(); }
+    match /labels/{id}        { allow read; allow write: if isAdmin(); }
+    match /pressNotes/{id}    { allow read; allow write: if isAdmin(); }
+    match /liveSets/{id}      { allow read; allow write: if isAdmin(); }
+    match /agendaEvents/{id}  { allow read; allow write: if isAdmin(); }
+    match /siteStats/{id}     { allow read; allow write: if isAdmin(); }
+    match /instagramPosts/{id}{ allow read; allow write: if isAdmin(); }
+    match /sync/{id}          { allow read; allow write: if isAdmin(); }
+
+    // Default deny
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -70,7 +70,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import logoMark from "../assets/nombreNacho.png";
+import logoMark from "../assets/nombreNacho.webp";
 import coverBonny from "../assets/bonnyEp.webp";
 import coverIlike from "../assets/ilikeitEp.webp";
 import coverPerc from "../assets/percussiveSeries.webp";
@@ -309,7 +309,7 @@ onUnmounted(() => {
   z-index: 0;
   pointer-events: none;
   background-color: #111;
-  background-image: url("../assets/nachoHero.jpg");
+  background-image: url("../assets/nachoHero.webp");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
