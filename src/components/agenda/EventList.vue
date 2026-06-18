@@ -55,18 +55,7 @@
             </template>
           </p>
         </div>
-        <a
-          v-if="ev.ticketsEnabled && ev.ticketsUrl"
-          class="event-list__tickets"
-          :href="ev.ticketsUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          @click.stop
-        >
-          Tickets
-          <span class="event-list__tickets-arrow" aria-hidden="true">→</span>
-        </a>
-        <span v-else class="event-list__chevron" aria-hidden="true">→</span>
+        <span class="event-list__chevron" aria-hidden="true">→</span>
       </li>
     </TransitionGroup>
 
@@ -343,44 +332,6 @@ function formatMonth(iso) {
 .event-list__item:hover .event-list__chevron {
   color: #0a0a0a;
   transform: translateX(3px);
-}
-
-.event-list__tickets {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 0.95rem;
-  border-radius: 999px;
-  background: #0a0a0a;
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.event-list__tickets:hover {
-  opacity: 0.88;
-}
-
-.event-list__tickets:active {
-  transform: scale(0.97);
-}
-
-.event-list__tickets:focus-visible {
-  outline: 2px solid #0a0a0a;
-  outline-offset: 2px;
-}
-
-.event-list__tickets-arrow {
-  transition: transform 0.2s ease;
-}
-
-.event-list__item:hover .event-list__tickets-arrow {
-  transform: translateX(2px);
 }
 
 .event-list__empty {

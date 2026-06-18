@@ -69,9 +69,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "flag-icons/css/flag-icons.min.css";
 import WorldMap from "./agenda/WorldMap.vue";
 import EventList from "./agenda/EventList.vue";
+import { EVENTS } from "./agenda/data.js";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
-import { useAgendaEvents } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -87,19 +87,19 @@ const props = defineProps({
 
 const isFull = computed(() => props.variant === "full");
 
-const { items: events } = useAgendaEvents();
+const events = EVENTS;
 const selectedCountry = ref("");
 const sectionRef = ref(null);
 const agendaMetaRef = ref(null);
 let agendaScrollCtx;
 let agendaResizeObserver;
 
-const eventTotal = computed(() => events.value.length);
+const eventTotal = events.length;
 
 const sortedFilteredCount = computed(() => {
   const list = selectedCountry.value
-    ? events.value.filter((ev) => ev.countryCode === selectedCountry.value)
-    : events.value;
+    ? events.filter((ev) => ev.countryCode === selectedCountry.value)
+    : events;
   return [...list].sort((a, b) => a.date.localeCompare(b.date)).length;
 });
 
@@ -142,7 +142,7 @@ onMounted(() => {
       const meta = agendaMetaRef.value;
       if (head && meta) {
         countUpOnScroll(head, meta, {
-          to: eventTotal.value || 1,
+          to: eventTotal,
           format: (v) => `(${String(Math.round(v)).padStart(2, "0")})`,
         });
       }

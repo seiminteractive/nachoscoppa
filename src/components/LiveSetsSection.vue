@@ -107,13 +107,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import previewRio from "../assets/youtubeRio.avif";
+import preview4get from "../assets/youtube4get.avif";
+import previewMetropolitano from "../assets/liveMetropolitano.png";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
-import { useLiveSets } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -122,8 +124,47 @@ const cardRef = ref(null);
 const liveSetsCountRef = ref(null);
 const openId = ref(null);
 
-const { items: liveSets } = useLiveSets();
-const liveSetsLength = computed(() => liveSets.value.length);
+const liveSets = [
+  {
+    id: "ls-metropolitano",
+    title: "Nacho Scoppa Live @ Metropolitano, Rosario 07.06.2025",
+    date: "7 jun 2025",
+    venue: "Metropolitano",
+    city: "Rosario, AR",
+    detail: "Nacho Scoppa Live @ Metropolitano, Rosario — 07.06.2025.",
+    extra: null,
+    listenLabel: "Escuchar en SoundCloud",
+    streamUrl:
+      "https://soundcloud.com/nachoscoppaofficial/nacho-scoppa-live-metrpolitano-rosario-07062025",
+    previewSrc: previewMetropolitano,
+  },
+  {
+    id: "ls-rio",
+    title: "Río Electronic Music · Buenos Aires",
+    date: "15 jun 2025",
+    venue: "Río Electronic Music",
+    city: "Buenos Aires, AR",
+    detail:
+      "Nacho Scoppa live @ Río Electronic Music, Buenos Aires — 15.06.2025.",
+    extra: null,
+    listenLabel: "Ver en YouTube",
+    streamUrl: "https://www.youtube.com/watch?v=08lYFUwXb28",
+    previewSrc: previewRio,
+  },
+  {
+    id: "ls-4get",
+    title: "4GET · Estación Belgrano",
+    date: "7 dic 2025",
+    venue: "4GET",
+    city: "Estación Belgrano, Santa Fe, AR",
+    detail:
+      "Nacho Scoppa Live @ 4GET Estación Belgrano, Santa Fe — 07.12.2025.",
+    extra: null,
+    listenLabel: "Ver en YouTube",
+    streamUrl: "https://youtu.be/mHsk3idrQxU",
+    previewSrc: preview4get,
+  },
+];
 
 function formatIndex(i) {
   return String(i + 1).padStart(3, "0");
@@ -174,7 +215,7 @@ onMounted(() => {
       const countEl = liveSetsCountRef.value;
       if (root && countEl) {
         countUpOnScroll(root, countEl, {
-          to: liveSetsLength.value || 1,
+          to: liveSets.length,
           format: (v) => `(${Math.round(v)})`,
         });
       }
