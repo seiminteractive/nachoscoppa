@@ -18,7 +18,7 @@
         </p>
       </header>
 
-      <article class="featured__card" aria-describedby="featured-track-desc">
+      <article v-if="track" class="featured__card" aria-describedby="featured-track-desc">
         <div class="featured__cover-wrap">
           <div class="featured__cover">
             <span class="featured__cover-corner" aria-hidden="true">+</span>
@@ -86,47 +86,37 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import { Icon } from "@iconify/vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
-import coverSummertime from "../assets/summertimeEp.jpg";
+import { useFeaturedTrack } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const track = {
-  title: "Summertime EP",
-  label: "Elrow Limited",
-  year: "2026",
-  format: "EP · digital",
-  cover: coverSummertime,
-  description:
-    "Nacho Scoppa vuelve a elrow Limited con un EP de dos originales: “Summertime” aporta el lado luminoso y el gancho melódico; “Turn It” refuerza el paso con un enfoque más directo para la pista. En conjunto suman poco más de siete minutos, pensados para programarse en secuencia o repartirse según el arco del set.",
-  links: [
-    {
-      id: "spotify",
-      label: "Escuchar en Spotify",
-      icon: "simple-icons:spotify",
-      href: "https://open.spotify.com/album/5xN03zaOEha6txKf3LtF9W",
-      primary: true,
-    },
-    {
-      id: "beatport",
-      label: "Comprar en Beatport",
-      icon: "simple-icons:beatport",
-      href: "https://www.beatport.com/es/release/summertime/6816133",
-      primary: false,
-    },
-  ],
-};
+const { data: featuredData } = useFeaturedTrack();
 
-const _trackYearNum = parseInt(track.year, 10);
-const featuredYearFrom = String(
-  Number.isNaN(_trackYearNum) ? track.year : Math.max(_trackYearNum - 10, 1990),
-);
+const track = computed(() => {
+  const d = featuredData.value;
+  if (!d?.title) return null;
+  return {
+    title: d.title,
+    label: d.label ?? "",
+    year: d.year ?? "",
+    format: d.format ?? "",
+    cover: d.cover ?? "",
+    description: d.description ?? "",
+    links: Array.isArray(d.links) ? d.links : [],
+  };
+});
+
+const featuredYearFrom = computed(() => {
+  const y = parseInt(track.value?.year ?? "", 10);
+  return String(Number.isNaN(y) ? track.value?.year ?? "" : Math.max(y - 10, 1990));
+});
 
 const sectionRef = ref(null);
 const featuredMetaRef = ref(null);
@@ -163,7 +153,7 @@ onMounted(() => {
         });
       }
       const yearEl = featuredYearRef.value;
-      const y = parseInt(track.year, 10);
+      const y = parseInt(track.value?.year ?? "", 10);
       if (info && yearEl && !Number.isNaN(y)) {
         countUpOnScroll(info, yearEl, {
           from: Math.max(y - 10, 1990),

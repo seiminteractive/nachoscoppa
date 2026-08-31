@@ -63,14 +63,14 @@
             <article class="dj-info__card dj-info__card--stat">
               <span class="dj-info__card-index">01</span>
               <div class="dj-info__stat-block">
-                <p class="dj-info__stat">+27</p>
+                <p class="dj-info__stat" ref="countriesStatRef">+0</p>
                 <p class="dj-info__stat-label">países</p>
               </div>
             </article>
             <article class="dj-info__card dj-info__card--stat">
               <span class="dj-info__card-index">02</span>
               <div class="dj-info__stat-block">
-                <p class="dj-info__stat">+60K</p>
+                <p class="dj-info__stat" ref="monthlyListenersStatRef">+0K</p>
                 <p class="dj-info__stat-label">oyentes mensuales</p>
               </div>
             </article>
@@ -131,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import djPortrait from "../assets/nachoVertical.jpg";
@@ -143,12 +143,19 @@ import logoMoan from "../assets/logoMoanLabel.png";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
+import { useSiteStats, useLabels } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const sectionRef = ref(null);
-/** Logos de sellos en `src/assets` (carrusel en la card “Respaldo en cabina”).*/
-const labelLogos = [
+const countriesStatRef = ref(null);
+const monthlyListenersStatRef = ref(null);
+
+/** Cifras destacadas: vienen del panel admin (Firestore `siteStats/main`). El template arranca en 0. */
+const { data: siteStats } = useSiteStats();
+const { items: labelItems } = useLabels();
+
+const fallbackLabels = [
   { id: "criterio", name: "Criterio", src: logoCriterio },
   { id: "deep", name: "Deeperfect", src: logoDeep },
   { id: "bamboleo", name: "Bamboleo", src: logoBamboleo },
@@ -156,11 +163,157 @@ const labelLogos = [
   { id: "moan", name: "Moan", src: logoMoan },
 ];
 
+/** Logos del panel admin; si aún no hay URLs en Storage, usa los assets locales. */
+const labelLogos = computed(() => {
+  const fromDb = labelItems.value
+    .filter((l) => l.src)
+    .map((l) => ({ id: l.id, name: l.name, src: l.src }));
+  return fromDb.length ? fromDb : fallbackLabels;
+});
+
 /** PDF u hojas estáticas en `public/presskit/` (Vite las sirve en la raíz). */
 const presskitEsUrl = "/presskit/nacho-scoppa-es.pdf";
 const presskitEnUrl = "/presskit/nacho-scoppa-en.pdf";
 
 let ctx;
+let statsWatchStop;
+const tweens = { countries: null, listeners: null };
+const displayed = { countries: 0, listeners: 0 };
+const targets = { countries: 27, listeners: 60 };
+const entered = { countries: false, listeners: false };
+let triggersSetup = false;
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+function syncTargets() {
+  targets.countries = siteStats.value?.countries ?? 27;
+  targets.listeners = siteStats.value?.monthlyListeners ?? 60;
+}
+
+function runCountriesAnimation(from, to) {
+  const el = countriesStatRef.value;
+  if (!el || from === to) return;
+
+  if (prefersReducedMotion()) {
+    el.textContent = `+${to}`;
+    displayed.countries = to;
+    return;
+  }
+
+  tweens.countries?.kill();
+  const obj = { v: from };
+  el.textContent = `+${Math.round(from)}`;
+  tweens.countries = gsap.to(obj, {
+    v: to,
+    duration: 1.45,
+    ease: "power2.out",
+    onUpdate: () => {
+      el.textContent = `+${Math.round(obj.v)}`;
+    },
+    onComplete: () => {
+      displayed.countries = to;
+    },
+  });
+}
+
+function runListenersAnimation(from, to) {
+  const el = monthlyListenersStatRef.value;
+  if (!el || from === to) return;
+
+  if (prefersReducedMotion()) {
+    el.textContent = `+${to}K`;
+    displayed.listeners = to;
+    return;
+  }
+
+  tweens.listeners?.kill();
+  const obj = { v: from };
+  el.textContent = `+${Math.round(from)}K`;
+  tweens.listeners = gsap.to(obj, {
+    v: to,
+    duration: 1.45,
+    ease: "power2.out",
+    onUpdate: () => {
+      el.textContent = `+${Math.round(obj.v)}K`;
+    },
+    onComplete: () => {
+      displayed.listeners = to;
+    },
+  });
+}
+
+/** Primera animación al entrar en vista; `targets` se lee en onEnter por si Firestore llega tarde. */
+function initStatTriggers() {
+  if (triggersSetup || !siteStats.value || !ctx) return;
+
+  const section = sectionRef.value;
+  if (!section) return;
+
+  triggersSetup = true;
+  syncTargets();
+
+  const statCards = section.querySelectorAll(".dj-info__card--stat");
+
+  if (prefersReducedMotion()) {
+    runCountriesAnimation(0, targets.countries);
+    runListenersAnimation(0, targets.listeners);
+    entered.countries = true;
+    entered.listeners = true;
+    return;
+  }
+
+  ctx.add(() => {
+    if (statCards[0] && countriesStatRef.value) {
+      ScrollTrigger.create({
+        trigger: statCards[0],
+        start: "top 94%",
+        once: true,
+        onEnter: () => {
+          entered.countries = true;
+          runCountriesAnimation(0, targets.countries);
+        },
+      });
+    }
+    if (statCards[1] && monthlyListenersStatRef.value) {
+      ScrollTrigger.create({
+        trigger: statCards[1],
+        start: "top 94%",
+        once: true,
+        onEnter: () => {
+          entered.listeners = true;
+          runListenersAnimation(0, targets.listeners);
+        },
+      });
+    }
+  });
+}
+
+/** Actualiza en vivo cuando el panel admin guarda nuevas cifras (Firestore onSnapshot). */
+function handleStatsUpdate() {
+  if (!siteStats.value) return;
+
+  const prevCountries = targets.countries;
+  const prevListeners = targets.listeners;
+  syncTargets();
+
+  if (!triggersSetup) {
+    nextTick(() => initStatTriggers());
+    return;
+  }
+
+  if (entered.countries && targets.countries !== prevCountries) {
+    runCountriesAnimation(displayed.countries, targets.countries);
+  }
+
+  if (entered.listeners && targets.listeners !== prevListeners) {
+    runListenersAnimation(displayed.listeners, targets.listeners);
+  }
+}
 
 onMounted(() => {
   nextTick(() => {
@@ -185,21 +338,8 @@ onMounted(() => {
       if (headline) revealTextOnScroll(headline, { trigger: headline, stagger: 0.035, duration: 1.1 });
       if (intro) revealTextOnScroll(intro, { trigger: intro, yPercent: 105, rotateX: -30, blur: 4, stagger: 0.012, duration: 0.9 });
 
-      const statCards = section.querySelectorAll(".dj-info__card--stat");
-      const statVals = section.querySelectorAll(".dj-info__card--stat .dj-info__stat");
-      if (statCards[0] && statVals[0]) {
-        countUpOnScroll(statCards[0], statVals[0], {
-          to: 27,
-          format: (v) => `+${Math.round(v)}`,
-        });
-      }
-      if (statCards[1] && statVals[1]) {
-        countUpOnScroll(statCards[1], statVals[1], {
-          to: 60,
-          format: (v) => `+${Math.round(v)}K`,
-        });
-      }
       const idxEls = section.querySelectorAll(".dj-info__card--stat .dj-info__card-index");
+      const statCards = section.querySelectorAll(".dj-info__card--stat");
       if (statCards[0] && idxEls[0]) {
         countUpOnScroll(statCards[0], idxEls[0], {
           to: 1,
@@ -215,11 +355,17 @@ onMounted(() => {
       }
     }, section);
 
+    initStatTriggers();
+    statsWatchStop = watch(siteStats, handleStatsUpdate);
+
     ScrollTrigger.refresh();
   });
 });
 
 onUnmounted(() => {
+  statsWatchStop?.();
+  tweens.countries?.kill();
+  tweens.listeners?.kill();
   ctx?.revert();
 });
 </script>

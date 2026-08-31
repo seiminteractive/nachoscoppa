@@ -61,41 +61,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { revealTextOnScroll } from "../composables/revealTextOnScroll";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
-
-import notaMixmag from "../assets/notaMixmag.png";
-import notaMagnetic from "../assets/notaMagneticmag.jpg";
+import { usePressNotes } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Hasta 3 entradas; ahora 2. Agregar aquí la tercera nota cuando exista. */
-const notes = [
-  {
-    id: "mixmag-it",
-    title: "Mixmag Italia",
-    kicker: "Portada digital · Italia",
-    description:
-      "Nacho Scoppa protagoniza la portada del digital magazine de Mixmag Italia: en una cobertura enfocada en su identidad sonora y proyección internacional.",
-    url: "https://mixmagit.com/read/mixmagitalyade-con-nacho-scoppa-in-copertina-digital-magazine",
-    image: notaMixmag,
-    imageAlt: "Portada digital de Mixmag Italia con Nacho Scoppa",
-  },
-  {
-    id: "magnetic",
-    title: "Magnetic Magazine",
-    kicker: "Entrevista · Estados Unidos",
-    description:
-      "Una conversación sobre producción, cultura club y la visión creativa detrás del universo musical de Nacho Scoppa.",
-    url: "https://magneticmag.com/2026/03/nacho-scoppa-interview/",
-    image: notaMagnetic,
-    imageAlt: "Artículo de Magnetic Magazine sobre Nacho Scoppa",
-  },
-];
+const { items: pressItems } = usePressNotes();
+
+const notes = computed(() =>
+  pressItems.value.map((n) => ({
+    id: n.id,
+    title: n.title ?? "",
+    kicker: n.kicker ?? "",
+    description: n.description ?? "",
+    url: n.url ?? "",
+    image: n.image ?? "",
+    imageAlt: n.imageAlt ?? n.title ?? "",
+  })),
+);
 
 const pinRef = ref(null);
 const viewportRef = ref(null);
@@ -148,6 +136,22 @@ function setupHorizontalScroll() {
 }
 
 onMounted(() => {
+  nextTick(() => initScrollEffects());
+});
+
+watch(
+  () => notes.value.length,
+  () => {
+    nextTick(() => {
+      ctx?.revert();
+      initScrollEffects();
+    });
+  },
+);
+
+function initScrollEffects() {
+  if (!notes.value.length) return;
+
   nextTick(() => {
     const root = pinRef.value?.closest(".press-notes-region") || pinRef.value;
     ctx = gsap.context(() => {
@@ -173,7 +177,7 @@ onMounted(() => {
 
     ScrollTrigger.refresh();
   });
-});
+}
 
 onUnmounted(() => {
   ctx?.revert();

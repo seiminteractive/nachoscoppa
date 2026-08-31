@@ -61,17 +61,33 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { revealOnScroll } from "../composables/scrollReveal";
-
-const JSON_URL = "/data/instagram-posts.json";
+import { useInstagramPosts, useInstagramMeta } from "../composables/content";
 
 /** Copias por post dentro de cada mitad de la pista (ancho >> viewport). */
 const POST_STRIP_COPIES = 4;
 const marqueePasses = [1, 2];
 
 const sectionRef = ref(null);
-const posts = ref([]);
-const instagramUsername = ref("nachoscoppa");
-const profileUrl = ref("https://www.instagram.com/nachoscoppa/");
+const { items: igPosts } = useInstagramPosts();
+const { data: igMeta } = useInstagramMeta();
+const fallbackPosts = ref([]);
+
+const instagramUsername = computed(
+  () => igMeta.value?.username ?? "nachoscoppa",
+);
+const profileUrl = computed(
+  () => igMeta.value?.profileUrl ?? `https://www.instagram.com/${instagramUsername.value}/`,
+);
+
+const posts = computed(() =>
+  (igPosts.value.length ? igPosts.value : fallbackPosts.value)
+    .filter((p) => p.image && p.url)
+    .map((p) => ({
+      shortcode: p.shortcode ?? p.id,
+      url: p.url,
+      image: p.image,
+    })),
+);
 
 const strip = computed(() => {
   const p = posts.value;
@@ -91,26 +107,10 @@ const strip = computed(() => {
 /** Reveals independientes (head + carrusel). */
 let revealTimelines = [];
 
-onMounted(() => {
-  fetch(JSON_URL)
-    .then((r) => (r.ok ? r.json() : null))
-    .then((data) => {
-      if (data?.username) instagramUsername.value = data.username;
-      if (data?.profileUrl) profileUrl.value = data.profileUrl;
-      const list = data?.posts;
-      if (Array.isArray(list) && list.length > 0) {
-        posts.value = list.filter((p) => p.image && p.url);
-      }
-    })
-    .catch(() => {});
-});
+function setupReveals() {
+  if (!posts.value.length) return;
 
-watch(
-  () => posts.value.length,
-  async (n) => {
-    if (n === 0) return;
-    await nextTick();
-
+  nextTick(() => {
     const section = sectionRef.value;
     if (!(section instanceof HTMLElement)) return;
 
@@ -128,7 +128,22 @@ watch(
       if (b) revealTimelines.push(b);
     }
     ScrollTrigger.refresh();
-  },
+  });
+}
+
+onMounted(() => {
+  fetch("/data/instagram-posts.json")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      if (Array.isArray(data?.posts)) fallbackPosts.value = data.posts;
+    })
+    .catch(() => {});
+  setupReveals();
+});
+
+watch(
+  () => posts.value.length,
+  () => setupReveals(),
 );
 
 onUnmounted(() => {

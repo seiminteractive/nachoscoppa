@@ -62,14 +62,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
+ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { RouterLink } from "vue-router";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "flag-icons/css/flag-icons.min.css";
 import WorldMap from "./agenda/WorldMap.vue";
 import EventList from "./agenda/EventList.vue";
-import { EVENTS } from "./agenda/data.js";
+import { useAgendaEvents } from "../composables/content";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
 
@@ -87,19 +87,20 @@ const props = defineProps({
 
 const isFull = computed(() => props.variant === "full");
 
-const events = EVENTS;
+const { items: agendaItems } = useAgendaEvents();
+const events = computed(() => agendaItems.value);
 const selectedCountry = ref("");
 const sectionRef = ref(null);
 const agendaMetaRef = ref(null);
 let agendaScrollCtx;
 let agendaResizeObserver;
 
-const eventTotal = events.length;
+const eventTotal = computed(() => events.value.length);
 
 const sortedFilteredCount = computed(() => {
   const list = selectedCountry.value
-    ? events.filter((ev) => ev.countryCode === selectedCountry.value)
-    : events;
+    ? events.value.filter((ev) => ev.countryCode === selectedCountry.value)
+    : events.value;
   return [...list].sort((a, b) => a.date.localeCompare(b.date)).length;
 });
 
@@ -142,12 +143,31 @@ onMounted(() => {
       const meta = agendaMetaRef.value;
       if (head && meta) {
         countUpOnScroll(head, meta, {
-          to: eventTotal,
+          to: eventTotal.value,
           format: (v) => `(${String(Math.round(v)).padStart(2, "0")})`,
         });
       }
     }, section);
 
+    ScrollTrigger.refresh();
+  });
+});
+
+watch(eventTotal, () => {
+  nextTick(() => {
+    agendaScrollCtx?.revert();
+    const section = sectionRef.value;
+    if (!section) return;
+    agendaScrollCtx = gsap.context(() => {
+      const head = section.querySelector(".agenda__head");
+      const meta = agendaMetaRef.value;
+      if (head && meta) {
+        countUpOnScroll(head, meta, {
+          to: eventTotal.value,
+          format: (v) => `(${String(Math.round(v)).padStart(2, "0")})`,
+        });
+      }
+    }, section);
     ScrollTrigger.refresh();
   });
 });

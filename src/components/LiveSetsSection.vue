@@ -107,64 +107,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-import previewRio from "../assets/youtubeRio.avif";
-import preview4get from "../assets/youtube4get.avif";
-import previewMetropolitano from "../assets/liveMetropolitano.png";
 import { revealOnScroll } from "../composables/scrollReveal";
 import { countUpOnScroll } from "../composables/countUpOnScroll";
+import { useLiveSets } from "../composables/content";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const { items: liveSetItems } = useLiveSets();
+
+const liveSets = computed(() =>
+  liveSetItems.value.map((s) => ({
+    id: s.id,
+    title: s.title ?? "",
+    date: s.date ?? "",
+    venue: s.venue ?? "",
+    city: s.city ?? "",
+    detail: s.detail ?? "",
+    extra: s.extra ?? null,
+    listenLabel: s.listenLabel ?? "Escuchar",
+    streamUrl: s.streamUrl ?? "",
+    previewSrc: s.previewSrc ?? "",
+  })),
+);
 
 const rootRef = ref(null);
 const cardRef = ref(null);
 const liveSetsCountRef = ref(null);
 const openId = ref(null);
-
-const liveSets = [
-  {
-    id: "ls-metropolitano",
-    title: "Nacho Scoppa Live @ Metropolitano, Rosario 07.06.2025",
-    date: "7 jun 2025",
-    venue: "Metropolitano",
-    city: "Rosario, AR",
-    detail: "Nacho Scoppa Live @ Metropolitano, Rosario — 07.06.2025.",
-    extra: null,
-    listenLabel: "Escuchar en SoundCloud",
-    streamUrl:
-      "https://soundcloud.com/nachoscoppaofficial/nacho-scoppa-live-metrpolitano-rosario-07062025",
-    previewSrc: previewMetropolitano,
-  },
-  {
-    id: "ls-rio",
-    title: "Río Electronic Music · Buenos Aires",
-    date: "15 jun 2025",
-    venue: "Río Electronic Music",
-    city: "Buenos Aires, AR",
-    detail:
-      "Nacho Scoppa live @ Río Electronic Music, Buenos Aires — 15.06.2025.",
-    extra: null,
-    listenLabel: "Ver en YouTube",
-    streamUrl: "https://www.youtube.com/watch?v=08lYFUwXb28",
-    previewSrc: previewRio,
-  },
-  {
-    id: "ls-4get",
-    title: "4GET · Estación Belgrano",
-    date: "7 dic 2025",
-    venue: "4GET",
-    city: "Estación Belgrano, Santa Fe, AR",
-    detail:
-      "Nacho Scoppa Live @ 4GET Estación Belgrano, Santa Fe — 07.12.2025.",
-    extra: null,
-    listenLabel: "Ver en YouTube",
-    streamUrl: "https://youtu.be/mHsk3idrQxU",
-    previewSrc: preview4get,
-  },
-];
 
 function formatIndex(i) {
   return String(i + 1).padStart(3, "0");
@@ -176,63 +148,65 @@ function toggle(id) {
 
 let ctx;
 
-onMounted(() => {
-  nextTick(() => {
-    const root = rootRef.value;
-    const card = cardRef.value;
-    if (!root || !card) return;
+function initScrollEffects() {
+  const root = rootRef.value;
+  const card = cardRef.value;
+  if (!root || !card || !liveSets.value.length) return;
 
-    ctx = gsap.context(() => {
-      /*
-       * La card NO puede animar con start "top top" + yPercent 100: al llegar la sección arriba
-       * el progreso es 0 y la card sigue 100% abajo → overflow:hidden la recorta y parece un bloque vacío.
-       * Mientras la sección pasa de “entrando por abajo” a “top alineado al viewport”, la card sube.
-       */
-      gsap.fromTo(
-        card,
-        { yPercent: 100 },
-        {
-          yPercent: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: root,
-            start: "top bottom",
-            /* +=innerHeight alinea con "top top";100dvh/ subpíxeles dejan ~pocos px de cola. */
-            end: () => `+=${Math.max(0, window.innerHeight - 8)}`,
-            scrub: 1,
-            fastScrollEnd: true,
-            invalidateOnRefresh: true,
-          },
-        }
-      );
+  ctx?.revert();
+  ctx = gsap.context(() => {
+    gsap.fromTo(
+      card,
+      { yPercent: 100 },
+      {
+        yPercent: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: root,
+          start: "top bottom",
+          end: () => `+=${Math.max(0, window.innerHeight - 8)}`,
+          scrub: 1,
+          fastScrollEnd: true,
+          invalidateOnRefresh: true,
+        },
+      },
+    );
 
-      const inner = card.querySelector(".live-sets__inner");
-      if (inner) {
-        const rows = inner.querySelectorAll(".live-sets__badge-row, .live-sets__title, .live-sets__item");
-        revealOnScroll(root, rows);
-      }
+    const inner = card.querySelector(".live-sets__inner");
+    if (inner) {
+      const rows = inner.querySelectorAll(".live-sets__badge-row, .live-sets__title, .live-sets__item");
+      revealOnScroll(root, rows);
+    }
 
-      const countEl = liveSetsCountRef.value;
-      if (root && countEl) {
-        countUpOnScroll(root, countEl, {
-          to: liveSets.length,
-          format: (v) => `(${Math.round(v)})`,
-        });
-      }
-      const items = root.querySelectorAll(".live-sets__item");
-      items.forEach((item, i) => {
-        const idx = item.querySelector(".live-sets__index");
-        if (!idx) return;
-        countUpOnScroll(item, idx, {
-          to: i + 1,
-          format: (v) => `(${String(Math.round(v)).padStart(3, "0")})`,
-        });
+    const countEl = liveSetsCountRef.value;
+    if (root && countEl) {
+      countUpOnScroll(root, countEl, {
+        to: liveSets.value.length,
+        format: (v) => `(${Math.round(v)})`,
       });
-    }, root);
+    }
+    const items = root.querySelectorAll(".live-sets__item");
+    items.forEach((item, i) => {
+      const idx = item.querySelector(".live-sets__index");
+      if (!idx) return;
+      countUpOnScroll(item, idx, {
+        to: i + 1,
+        format: (v) => `(${String(Math.round(v)).padStart(3, "0")})`,
+      });
+    });
+  }, root);
 
-    ScrollTrigger.refresh();
-  });
+  ScrollTrigger.refresh();
+}
+
+onMounted(() => {
+  nextTick(() => initScrollEffects());
 });
+
+watch(
+  () => liveSets.value.length,
+  () => nextTick(() => initScrollEffects()),
+);
 
 onUnmounted(() => {
   ctx?.revert();
